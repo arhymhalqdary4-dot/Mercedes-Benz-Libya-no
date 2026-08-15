@@ -182,6 +182,94 @@ h3,
   opacity: 0.5;
 }
 
+/* ── Hero stacking ────────────────────────────────────────────────────────
+   Three layers, explicit order: video (0) → scrim (10) → copy (20).
+   The video is framed so its subject sits in the half the text leaves empty,
+   and the scrim is weighted toward the text side, so the footage stays visible
+   where it matters and the words keep their contrast where they sit.        */
+.hero-media {
+  z-index: 0;
+  object-position: center;
+  /* Nudge the footage away from the copy. Most b-roll centres its subject, and
+     a 16:9 clip in a wide hero is cropped vertically — not horizontally — so
+     object-position alone cannot move it. This shift does, whatever the clip's
+     aspect ratio; the scale keeps the frame filled. Set --hero-shift to 0 if
+     your clip already frames its subject off to one side. */
+  --hero-shift: 11%;
+  transform: translateX(var(--hero-shift)) scale(1.24);
+  transform-origin: center;
+}
+[dir="rtl"] .hero-media {
+  transform: translateX(calc(-1 * var(--hero-shift))) scale(1.24);
+}
+@media (max-width: 1023px) {
+  /* Copy spans the width here, so leave the framing alone. */
+  .hero-media {
+    --hero-shift: 0%;
+    transform: none;
+  }
+}
+
+.hero-scrim {
+  z-index: 10;
+  /* Half strength over the ambient brand field, full strength once hero.mp4 is
+     playing and there is real footage to hold the type off. */
+  opacity: 0.5;
+  transition: opacity 0.7s ease;
+  background:
+    /* brand wash — keeps the hero unmistakably Decakila red over any footage */
+    linear-gradient(
+      90deg,
+      rgba(152, 5, 0, 0.78) 0%,
+      rgba(140, 4, 0, 0.6) 34%,
+      rgba(120, 4, 0, 0.3) 56%,
+      rgba(120, 4, 0, 0) 84%
+    ),
+    /* depth under the wash, so white type holds on a bright frame */
+      linear-gradient(
+        90deg,
+        rgba(18, 5, 3, 0.7) 0%,
+        rgba(18, 5, 3, 0.5) 32%,
+        rgba(18, 5, 3, 0.2) 56%,
+        rgba(18, 5, 3, 0) 82%
+      ),
+    linear-gradient(0deg, rgba(20, 5, 3, 0.55) 0%, rgba(20, 5, 3, 0) 45%);
+}
+.has-video .hero-scrim {
+  opacity: 1;
+}
+[dir="rtl"] .hero-scrim {
+  transform: scaleX(-1);
+}
+
+/* Narrow screens: the copy spans the full width, so the scrim does too and the
+   subject is framed nearer the centre. */
+@media (max-width: 767px) {
+  .hero-scrim {
+    background:
+      linear-gradient(
+        0deg,
+        rgba(152, 5, 0, 0.62) 0%,
+        rgba(140, 4, 0, 0.42) 55%,
+        rgba(120, 4, 0, 0.3) 100%
+      ),
+      linear-gradient(
+        0deg,
+        rgba(18, 5, 3, 0.72) 0%,
+        rgba(18, 5, 3, 0.52) 50%,
+        rgba(18, 5, 3, 0.42) 100%
+      );
+  }
+}
+
+.hero-copy {
+  z-index: 20;
+}
+.hero-copy h1,
+.hero-copy p {
+  text-shadow: 0 1px 14px rgba(12, 4, 3, 0.45);
+}
+
 .rise {
   animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
