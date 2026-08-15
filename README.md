@@ -25,9 +25,19 @@ npm run build   # → index.html + artifact.html
 | `assets/`            | Logo, and the white wordmark derived from it                  |
 | `build.mjs`          | Compiles Tailwind and inlines CSS, data and logos             |
 
-The build produces two files with identical content: `index.html` (a complete
-HTML document) and `artifact.html` (the same page as a body fragment, for hosts
-that supply their own `<head>`).
+The build produces the same site in three shapes:
+
+- **`index.html`** — everything inlined. One file, 549 KB, opens by
+  double-clicking. Nothing else needed.
+- **`artifact.html`** — the same page as a body fragment, for hosts that supply
+  their own `<head>`.
+- **`local/`** — the split layout: `index.html` (58 KB) beside `styles.css`,
+  `products.js` and `assets/`. Use this one if you want to read or hand-edit the
+  page; the catalogue and the stylesheet stay out of your way. `products.js`
+  loads as a classic script rather than `fetch()`, so it still works from
+  `file://` with no server.
+
+Both layouts render identically. Pick one — don't mix files between them.
 
 ## Catalogue data
 
