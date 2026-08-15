@@ -14,8 +14,8 @@
 <style>
 /* ==========================================================================
    1. DESIGN TOKENS
-   The single source of truth. Swap --brand-red here if you have the exact
-   Pantone/hex from the official Decakila brand sheet — everything follows.
+   Swap --brand-red here if you have the exact hex from the official Decakila
+   brand sheet — every red on the page derives from it.
    ========================================================================== */
 :root{
   /* Brand */
@@ -130,7 +130,6 @@ ul{ margin:0; padding:0; list-style:none; }
 }
 .section{ padding-block: clamp(56px, 8vw, var(--space-6)); position:relative; }
 .section--alt{ background:var(--bg-alt); }
-.section--tight{ padding-block: clamp(40px, 6vw, 72px); }
 
 .section-head{ max-width:680px; margin-bottom: clamp(32px, 5vw, 56px); }
 .section-head--center{ margin-inline:auto; text-align:center; }
@@ -185,7 +184,7 @@ html[dir="rtl"] .btn .i-arrow{ transform:scaleX(-1); }
    Mirrors itself in RTL so the curve always sweeps with the reading direction.
    ========================================================================== */
 .swoosh{
-  position:absolute; inset-inline:0; line-height:0; pointer-events:none; z-index:2;
+  position:absolute; inset-inline:0; line-height:0; pointer-events:none; z-index:5;
 }
 .swoosh svg{ width:100%; height:clamp(48px, 7vw, 104px); display:block; }
 html[dir="rtl"] .swoosh svg{ transform:scaleX(-1); }
@@ -196,8 +195,8 @@ html[dir="rtl"] .swoosh--flip svg{ transform:scale(-1,-1); }
 
 /* ==========================================================================
    6. LOGO
-   Placeholder built from the brand shape + wordmark. To drop in the real
-   asset, replace the contents of .logo with <img src="decakila-logo.svg">.
+   To drop in the real asset, replace the contents of .logo with
+   <img src="decakila-logo.svg" alt="Decakila">.
    ========================================================================== */
 .logo{ display:inline-flex; align-items:center; gap:12px; }
 .logo-mark{
@@ -305,117 +304,137 @@ html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78r
 .burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
 
 /* ==========================================================================
-   8. HERO — split layout with scroll-bound video scrubbing
+   8. HERO — centered product on solid brand red
    --------------------------------------------------------------------------
-   .hero-track supplies the scroll distance; .hero is sticky inside it, so
-   BOTH columns stay pinned together while scroll progress drives
-   video.currentTime. The copy sits on its own solid panel rather than over
-   the footage, so nothing competes with the product and the text needs no
-   shadow, scrim or overlay to be readable.
-   --hero-scroll is the ONLY knob for how long the scrub lasts.
+   Static and self-contained: no video, no scroll binding, nothing to schedule.
+   The product sits dead centre, the display wordmark sits behind it, and the
+   slogan + CTA stack directly beneath.
+
+   THE BLEND (--product-blend)
+   `multiply` keeps the darker of backdrop and source per channel, so a WHITE
+   background multiplied by anything disappears — that is what isolates the
+   product. The cost on a saturated red ground is that the same maths also
+   crushes the product's own green and blue channels, so it reads as a red
+   duotone rather than in natural colour.
+
+   The only way to keep natural colour on red is real transparency. So the
+   blend is applied by default (white-background files, which is the common
+   case) and the image is given .has-alpha at runtime if it turns out to carry
+   a real alpha channel — see resolveProductImage() at the bottom of the page.
    ========================================================================== */
 :root{
-  --hero-scroll: 400vh;             /* 100vh pinned + 300vh of scrubbing */
-  --hero-panel:  var(--brand-red);  /* the text column's solid ground */
-  --hero-seam:   clamp(30px, 4.4vw, 78px);   /* width of the S-curve seam */
+  --hero-bg: var(--brand-red);   /* the official brand red, flat */
 }
-
-.hero-track{
-  position:relative;
-  height:var(--hero-scroll);
-  /* Mirrors the split above it, so a sub-pixel gap at the pinned edge shows
-     the right colour under each column rather than red under the footage. */
-  background:linear-gradient(to right, var(--hero-panel) 0 50%, var(--grey-100) 50% 100%);
-}
-html[dir="rtl"] .hero-track{
-  background:linear-gradient(to left, var(--hero-panel) 0 50%, var(--grey-100) 50% 100%);
-}
-/* If the video can't load, the track collapses so there is no dead scroll. */
-.hero-track.is-static{ height:auto; }
 
 .hero{
-  position:sticky; top:0;
-  height:100vh;
-  height:100svh;                    /* stable on mobile as the URL bar moves */
-  display:grid;
-  grid-template-columns:1fr 1fr;    /* dir flips these automatically */
-  overflow:hidden;
-  isolation:isolate;
-}
-.hero-track.is-static .hero{ position:relative; height:auto; min-height:min(88vh,780px); }
-
-/* ---- Text column ------------------------------------------------------- */
-.hero__panel{
-  position:relative; z-index:2;
-  background:var(--hero-panel);
+  position:relative;
+  background:var(--hero-bg);
   color:#fff;
-  display:flex; align-items:center;
-  /* Extra room on the seam side so the copy never runs under the curve. */
-  padding-block: calc(var(--header-h) + clamp(20px,3vw,44px)) clamp(28px,4vw,56px);
-  padding-inline: clamp(24px,5vw,80px) calc(var(--hero-seam) + clamp(20px,2.5vw,44px));
-}
-.hero__inner{ width:100%; max-width:600px; margin-inline-start:auto; }
-/* On a wide screen the copy hugs the seam rather than drifting to the edge. */
-@media (min-width:1500px){ .hero__inner{ margin-inline-end:clamp(0px,4vw,80px); } }
-
-/* The logo's S-curve, standing up as the seam between panel and footage.
-   It is a child of the panel and pushed just past its inline-end edge. */
-.hero__seam{
-  position:absolute; inset-block:0;
-  inset-inline-end:calc(-1 * var(--hero-seam) + 1px);
-  width:var(--hero-seam); height:100%;
-  color:var(--hero-panel);
-  pointer-events:none; line-height:0;
-}
-.hero__seam svg{ width:100%; height:100%; display:block; }
-html[dir="rtl"] .hero__seam svg{ transform:scaleX(-1); }
-
-/* ---- Video column ------------------------------------------------------ */
-.hero__media{
-  position:relative; z-index:1;
-  background:var(--grey-100);       /* neutral ground, never bare white */
+  padding-block: calc(var(--header-h) + clamp(28px,5vw,56px)) clamp(120px,14vw,190px);
   overflow:hidden;
+  isolation:isolate;             /* keeps the blend inside the hero */
 }
-/* Ambient wash — carries the column on its own until the video decodes */
-.hero__ambient{
-  position:absolute; inset:0; z-index:0;
-  background:
-    radial-gradient(70% 70% at 50% 35%, var(--white) 0%, var(--grey-100) 55%, var(--grey-200) 100%);
-}
-.hero__video{
-  position:absolute; inset:0; z-index:1;
-  width:100%; height:100%;
-  object-fit:cover;
-  object-position:center;
-  opacity:0;                        /* JS fades it in once a frame exists */
-  transition:opacity 700ms var(--ease);
-  pointer-events:none;              /* scroll passes straight through */
-  will-change:opacity;
-}
-/* Full opacity, nothing layered over it — the render keeps its own colours. */
-.hero__video.is-ready{ opacity:1; }
 
-/* The video is a product render, not a mirror image — it must NOT flip in RTL
-   the way the seam curve does. Stated explicitly so nothing inherits a flip. */
-html[dir="rtl"] .hero__video{ transform:none; }
-
-/* Scrub progress — sits under the footage it describes, not under the copy */
-.hero__progress{
-  position:absolute; inset-block-end:0; inset-inline-start:0; z-index:4;
-  height:3px; width:100%; transform-origin:left;
-  background:var(--brand-red);
-  transform:scaleX(var(--scrub, 0));
-  opacity:0; transition:opacity var(--t) var(--ease);
+/* ---- Stage: wordmark behind, product centred on top --------------------
+   Only the product participates in layout. The wordmark and the spotlight are
+   taken out of flow on purpose: the wordmark is wider than the container above
+   ~1366px, and as an in-flow grid item it would stretch the column and push
+   the product off-centre by half the overflow (measured: 58px at 1440). Out of
+   flow, the product is centred by the container alone at every width, and the
+   wordmark is free to bleed toward the viewport edges as display type should.
+   Both are centred with physical left/top + translate, which is symmetric and
+   therefore identical in LTR and RTL. */
+.hero__stage{
+  position:relative;
+  display:grid;
+  place-items:center;
+  margin-inline:auto;
+  margin-block: clamp(4px,1.5vw,16px) clamp(20px,3vw,34px);
 }
-html[dir="rtl"] .hero__progress{ transform-origin:right; }
-.hero-track.is-scrubbing .hero__progress{ opacity:.9; }
-.hero-track.is-static .hero__progress{ display:none; }
 
-/* ---- Copy -------------------------------------------------------------- */
+/* The display word, sitting behind the product exactly as in the reference. */
+.hero__wordmark{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:max-content;
+  margin:0;
+  font-size:clamp(3.2rem, 17vw, 15rem);
+  font-weight:800;
+  letter-spacing:-.045em;
+  line-height:.9;
+  color:#F6EFE4;                 /* warm cream, not pure white */
+  white-space:nowrap;
+  user-select:none;
+  text-align:center;
+}
+html[lang="ar"] .hero__wordmark{
+  font-size:clamp(2.6rem, 13vw, 11rem);
+  letter-spacing:0;
+  line-height:1.15;
+}
+
+/* A soft spotlight behind the product. This is not decoration: under
+   `multiply` the result is backdrop x source, so a LIGHTER backdrop is the
+   only lever that stops the red crushing the render's own colours. The
+   product reads close to true colour at the centre of the pool and sinks
+   into the brand red at the edges, which is also how product photography
+   lights a hero shot. Raise the centre stop for more colour fidelity, lower
+   it for a flatter, more graphic look. */
+.hero__glow{
+  width:min(84vw, 660px);
+  aspect-ratio:1;
+  border-radius:50%;
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle at 50% 46%,
+              rgba(255,255,255,.46) 0%,
+              rgba(255,255,255,.30) 34%,
+              rgba(255,255,255,.10) 56%,
+              rgba(255,255,255,0)   72%);
+  pointer-events:none;
+}
+
+.hero__product{
+  position:relative;
+  width:auto;
+  height:clamp(230px, 42vh, 430px);
+  max-width:min(84vw, 460px);
+  object-fit:contain;
+
+  /* Default: assume a white-background export. */
+  mix-blend-mode:multiply;
+
+  /* Deliberately NO drop-shadow here. A white-background file is opaque
+     across its whole rectangle, so a drop-shadow traces that RECTANGLE
+     rather than the product, painting the exact box the blend exists to
+     hide (measured: a 12/255 step at the edge, versus 1/255 without it). */
+  filter:none;
+
+  opacity:0;                     /* faded in once the file resolves */
+  transition:opacity 600ms var(--ease);
+}
+.hero__product.is-ready{ opacity:1; }
+
+/* Set by JS when the file carries a real alpha channel. Transparency needs no
+   blend at all — and only now does a drop-shadow follow the product's
+   silhouette instead of its bounding box, so it is safe to switch on. */
+.hero__product.has-alpha{
+  mix-blend-mode:normal;
+  filter:drop-shadow(0 26px 40px rgba(0,0,0,.34));
+}
+
+/* If no candidate file loads, the stage keeps its shape instead of collapsing
+   and the wordmark carries the hero on its own. */
+.hero__stage.is-empty .hero__glow{ opacity:.5; }
+.hero__stage.is-empty{ min-height:clamp(200px,34vh,340px); }
+
+/* ---- Copy beneath the product ----------------------------------------- */
+.hero__lede{ text-align:center; max-width:640px; margin-inline:auto; }
+
 .hero__eyebrow{
   display:inline-flex; align-items:center; gap:10px;
-  padding:8px 18px 8px 10px; margin-bottom:22px;
-  background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.4);
+  padding:8px 18px 8px 10px; margin-bottom:clamp(14px,2vw,22px);
+  background:rgba(0,0,0,.16); border:1px solid rgba(255,255,255,.4);
   border-radius:var(--r-pill);
   font-size:.82rem; font-weight:600; letter-spacing:.02em;
 }
@@ -424,39 +443,52 @@ html[dir="rtl"] .hero__eyebrow{ padding:8px 10px 8px 18px; }
   width:9px; height:9px; border-radius:50%; background:#fff; flex:none;
   box-shadow:0 0 0 4px rgba(255,255,255,.22);
 }
+
+.hero__slogan{
+  font-size:clamp(.86rem, 1.5vw, 1.05rem); font-weight:700;
+  letter-spacing:.28em; text-transform:uppercase; color:#fff;
+  margin-bottom:clamp(12px,1.6vw,18px);
+}
+html[lang="ar"] .hero__slogan{
+  letter-spacing:0; text-transform:none; font-size:clamp(1.05rem,1.9vw,1.3rem);
+}
+
 .hero__title{
-  /* Sized to fit "Appliances that make" on one line inside half a screen —
-     larger and the line orphans its last word. */
-  font-size:clamp(1.9rem, 2.9vw, 2.9rem); font-weight:800; color:#fff;
+  font-size:clamp(1.5rem, 2.9vw, 2.3rem); font-weight:700; color:#fff;
   text-wrap:balance;
 }
-.hero__title span{ display:block; }
-.hero__slogan{
-  margin-top:18px;
-  font-size:clamp(.95rem, 1.2vw, 1.15rem); font-weight:700;
-  letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.95);
-}
-html[lang="ar"] .hero__slogan{ letter-spacing:0; text-transform:none; font-size:clamp(1.1rem,1.5vw,1.35rem); }
-.hero__slogan::after{
-  content:""; display:block; width:64px; height:3px; border-radius:2px;
-  background:#fff; margin-top:14px; opacity:.85;
-}
 .hero__text{
-  margin-top:20px; max-width:46ch;
-  font-size:clamp(.97rem,1.05vw,1.08rem); color:rgba(255,255,255,.93);
+  margin-top:clamp(12px,1.6vw,18px);
+  font-size:clamp(.97rem,1.15vw,1.08rem);
+  color:rgba(255,255,255,.9);
+  max-width:52ch; margin-inline:auto;
 }
-.hero__cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+.hero__cta{ margin-top:clamp(22px,3vw,34px); display:flex; justify-content:center; }
+.hero__cta .btn{ min-height:54px; padding-inline:34px; font-size:1.02rem; }
 
-/* Four stats in one row inside half a screen: a grid, not a wrapping flex,
-   so the columns stay aligned instead of reflowing into ragged groups. */
-.hero__stats{
-  display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
-  gap:clamp(12px,1.6vw,24px);
-  margin-top:clamp(28px,3.4vw,44px);
-  padding-top:22px; border-top:1px solid rgba(255,255,255,.4);
+/* ---- Bottom credibility bar, as in the reference ----------------------- */
+.hero__bar{
+  position:relative; z-index:4;
+  margin-top:clamp(38px,6vw,66px);
+  padding-top:clamp(20px,3vw,30px);
+  border-top:1px solid rgba(255,255,255,.28);
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:clamp(14px,2.5vw,32px);
 }
-.stat__num{ font-size:clamp(1.4rem,2vw,2rem); font-weight:800; color:#fff; line-height:1; }
-.stat__label{ margin-top:6px; font-size:.78rem; line-height:1.4; color:rgba(255,255,255,.85); font-weight:500; }
+.hero__cell{ padding-inline:clamp(8px,1.6vw,22px); }
+.hero__cell + .hero__cell{ border-inline-start:1px solid rgba(255,255,255,.28); }
+.hero__cell b{ display:block; font-size:clamp(1.3rem,2.2vw,1.9rem); font-weight:800; line-height:1.1; }
+.hero__cell span{ display:block; margin-top:5px; font-size:.85rem; color:rgba(255,255,255,.84); }
+.hero__badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.5);
+  font-size:.7rem; font-weight:700; letter-spacing:.06em; flex:none;
+}
+html[lang="ar"] .hero__badge{ letter-spacing:0; font-size:.76rem; }
+.hero__quote{ display:flex; align-items:center; gap:14px; }
+.hero__stars{ display:flex; gap:3px; margin-bottom:4px; }
+.hero__stars svg{ width:14px; height:14px; fill:#fff; }
 
 /* ==========================================================================
    9. TRUST STRIP
@@ -594,6 +626,7 @@ html[dir="rtl"] .card:hover .card__link svg{ transform:scaleX(-1) translateX(4px
 .checks .tick svg{ width:13px; height:13px; }
 .checks strong{ display:block; font-size:.98rem; }
 .checks span{ font-size:.9rem; color:var(--text-muted); }
+.about__cta{ margin-top:32px; display:flex; flex-wrap:wrap; gap:14px; }
 
 /* ==========================================================================
    12. SERVICES
@@ -681,7 +714,7 @@ html[lang="ar"] .branch__flag{ letter-spacing:0; text-transform:none; font-size:
 }
 
 /* ==========================================================================
-   14. CONTACT / CTA
+   14. CONTACT
    ========================================================================== */
 .contact__grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,4.5vw,64px); align-items:start; }
 .contact-list{ display:grid; gap:18px; margin-top:28px; }
@@ -794,45 +827,20 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
   .nav a{ padding:14px 12px; font-size:1.02rem; min-height:48px; display:flex; align-items:center; }
   .nav a::after{ display:none; }
   .logo-tag{ display:none; }
-
-  /* --- Hero stacks: footage on top, copy beneath ---------------------- */
-  /* Stacked, the panel is what reaches the bottom edge, so the track is solid. */
-  .hero-track, html[dir="rtl"] .hero-track{ background:var(--hero-panel); }
-  .hero{ grid-template-columns:1fr; grid-template-rows:38svh 1fr; }
-  .hero__media{ order:-1; }
-  /* Video is on top now, so the fixed header floats over it and the copy
-     no longer needs to be padded clear of the header. */
-  .hero__panel{
-    padding-block: clamp(30px,6vw,44px) clamp(24px,5vw,36px);
-    padding-inline: clamp(22px,6vw,40px);
-  }
-  .hero__inner{ max-width:none; margin-inline:0; }
-  /* The seam turns from a vertical edge into a horizontal one. */
-  .hero__seam{ display:none; }
-  .hero__panel::before{
-    content:""; position:absolute; inset-inline:-2%; top:-26px; height:52px;
-    background:var(--hero-panel); border-radius:52% 52% 0 0 / 100% 100% 0 0;
-  }
-  .hero__stats{ grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:22px; padding-top:18px; }
 }
 @media (max-width: 620px){
   :root{ --header-h:70px; }
-  .hero{ grid-template-rows:34svh 1fr; }
-  .hero__title{ font-size:clamp(1.75rem,7.4vw,2.3rem); }
-  /* The supporting paragraph is the one piece that will not fit a phone
-     alongside the headline, slogan, buttons and stats. It stays on tablets. */
-  .hero__text{ display:none; }
-  .hero__cta{ margin-top:22px; }
-  .hero__cta .btn{ flex:1 1 auto; min-height:46px; padding-inline:18px; }
-  /* Four stat columns get too narrow to read on a phone — two rows of two. */
-  .hero__stats{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
+  .hero{ padding-block: calc(var(--header-h) + 26px) 104px; }
+  .hero__cta .btn{ width:100%; }
+  /* Three cells will not read at phone width — the testimonial steps aside. */
+  .hero__bar{ grid-template-columns:repeat(2,1fr); }
+  .hero__cell--quote{ display:none; }
+  .hero__cell:first-of-type{ border-inline-start:0; }
   .footer__grid{ grid-template-columns:1fr 1fr; }
   .products__head{ flex-direction:column; align-items:flex-start; }
   .toast{ inset-inline:16px; }
 }
 @media (max-width: 420px){
-  .hero{ grid-template-rows:30svh 1fr; }
-  .hero__eyebrow{ margin-bottom:16px; font-size:.76rem; }
   .footer__grid{ grid-template-columns:1fr; }
   .product-grid{ grid-template-columns:1fr; }
 }
@@ -843,7 +851,7 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
     animation-duration:.01ms !important; animation-iteration-count:1 !important;
     transition-duration:.01ms !important; scroll-behavior:auto !important;
   }
-  .reveal{ opacity:1; transform:none; }
+  .has-js .reveal{ opacity:1; transform:none; }
 }
 </style>
 </head>
@@ -888,75 +896,77 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
 
 <main id="main">
 
-<!-- ======================= HERO — SPLIT LAYOUT =======================
-     .hero-track supplies the scroll distance (--hero-scroll); .hero is a
-     two-column grid, sticky inside the track, so BOTH columns stay pinned
-     together while the blender render scrubs frame-by-frame.
-
-     Column order is DOM order (copy, then video) and the grid follows the
-     document direction, so LTR puts copy left / video right and RTL flips
-     both automatically — no direction-specific rules needed.
-     ================================================================= -->
-<div class="hero-track" id="heroTrack">
+<!-- ======================= HERO — centered product on brand red =======================
+     Static: no video, no scroll binding. The product sits dead centre with the
+     display wordmark behind it and the slogan + CTA directly beneath.
+     ================================================================================ -->
 <section class="hero" id="home">
+  <div class="container">
 
-  <!-- ---- Text column: solid brand panel, nothing behind the words ---- -->
-  <div class="hero__panel">
-    <div class="hero__inner">
+    <div class="hero__lede">
       <span class="hero__eyebrow"><span class="dot"></span><span data-i18n="heroBadge">Authorized Distributor in Libya</span></span>
+    </div>
 
-      <h1 class="hero__title">
-        <span data-i18n="heroTitle1">Appliances that make</span>
-        <span data-i18n="heroTitle2">every home easier.</span>
-      </h1>
+    <!-- Stage: wordmark behind, product centred on top -->
+    <div class="hero__stage" id="heroStage">
+      <h1 class="hero__wordmark" data-i18n="wordmark">DECAKILA</h1>
+      <div class="hero__glow" aria-hidden="true"></div>
+      <!-- src is resolved at runtime across the candidate extensions -->
+      <img class="hero__product" id="heroProduct" alt="" decoding="async">
+    </div>
 
+    <div class="hero__lede">
       <p class="hero__slogan" data-i18n="slogan">Making Fun Life Easier</p>
-
+      <h2 class="hero__title" data-i18n="heroTitle">Appliances that make every home easier.</h2>
       <p class="hero__text" data-i18n="heroText">
         Decakila kitchen and home appliances, officially distributed across Libya —
-        backed by local warranty, genuine spare parts and seven branches ready to serve you.
+        backed by local warranty, genuine spare parts and seven branches.
       </p>
 
+      <!-- Clean white CTA, directly below the centred product -->
       <div class="hero__cta">
         <a class="btn btn--onred" href="#products">
-          <span data-i18n="ctaProducts">Explore Products</span>
+          <span data-i18n="ctaExplore">Explore Now</span>
           <svg class="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
-        <a class="btn btn--outline-light" href="#branches" data-i18n="ctaBranch">Find a Branch</a>
-      </div>
-
-      <div class="hero__stats">
-        <div class="stat"><div class="stat__num">7</div><div class="stat__label" data-i18n="statBranches">Branches nationwide</div></div>
-        <div class="stat"><div class="stat__num">120+</div><div class="stat__label" data-i18n="statProducts">Products in range</div></div>
-        <div class="stat"><div class="stat__num">12</div><div class="stat__label" data-i18n="statWarranty">Months local warranty</div></div>
-        <div class="stat"><div class="stat__num">100%</div><div class="stat__label" data-i18n="statGenuine">Genuine spare parts</div></div>
       </div>
     </div>
 
-    <!-- BRAND SWOOSH — the logo's S-curve, standing up as the column seam -->
-    <div class="hero__seam" aria-hidden="true">
-      <svg viewBox="0 0 100 1000" preserveAspectRatio="none">
-        <path d="M0,0 L44,0 C82,170 18,360 52,540 C76,672 44,846 30,1000 L0,1000 Z" fill="currentColor"/>
-      </svg>
+    <!-- Credibility bar -->
+    <div class="hero__bar">
+      <div class="hero__cell hero__cell--quote">
+        <div class="hero__quote">
+          <span class="hero__badge" data-i18n="barNew">NEW</span>
+          <div>
+            <div class="hero__stars" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2l3 6.6 7 .9-5.1 4.8 1.3 7L12 18l-6.2 3.3 1.3-7L2 9.5l7-.9z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 2l3 6.6 7 .9-5.1 4.8 1.3 7L12 18l-6.2 3.3 1.3-7L2 9.5l7-.9z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 2l3 6.6 7 .9-5.1 4.8 1.3 7L12 18l-6.2 3.3 1.3-7L2 9.5l7-.9z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 2l3 6.6 7 .9-5.1 4.8 1.3 7L12 18l-6.2 3.3 1.3-7L2 9.5l7-.9z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 2l3 6.6 7 .9-5.1 4.8 1.3 7L12 18l-6.2 3.3 1.3-7L2 9.5l7-.9z"/></svg>
+            </div>
+            <span data-i18n="barQuote">"Excellent service."</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__cell">
+        <b data-i18n="barOfficial">Authorized Distributor</b>
+        <span data-i18n="barOfficialSub">Official Decakila agent in Libya</span>
+      </div>
+      <div class="hero__cell">
+        <b>7</b>
+        <span data-i18n="barBranches">Branches across Libya</span>
+      </div>
     </div>
   </div>
 
-  <!-- ---- Video column: the render, and nothing else ------------------ -->
-  <div class="hero__media">
-    <div class="hero__ambient"></div>
-
-    <!-- Scrubbed by scroll position — deliberately no autoplay and no loop. -->
-    <video class="hero__video" id="blenderVideo"
-           src="hero.mp4"
-           muted preload="auto" playsinline
-           disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
-
-    <!-- Scrub progress, under the footage it describes -->
-    <div class="hero__progress" aria-hidden="true"></div>
+  <!-- BRAND SWOOSH — the logo's S-curve as a section divider -->
+  <div class="swoosh swoosh--bottom" aria-hidden="true">
+    <svg viewBox="0 0 1440 110" preserveAspectRatio="none">
+      <path d="M0,110 L1440,110 L1440,24 C1180,102 1010,6 660,62 C430,99 190,104 0,58 Z" fill="#FFFFFF"/>
+    </svg>
   </div>
-
 </section>
-</div><!-- /.hero-track -->
 
 <!-- ======================= TRUST STRIP ======================= -->
 <section class="trust">
@@ -1169,7 +1179,7 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
         </li>
       </ul>
 
-      <div class="hero__cta" style="margin-top:32px">
+      <div class="about__cta">
         <a class="btn btn--primary" href="#branches">
           <span data-i18n="aboutCta">See our branches</span>
           <svg class="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -1434,13 +1444,15 @@ const T = {
     navHome:"Home", navProducts:"Products", navAbout:"About Us",
     navServices:"Services", navBranches:"Branches", navContact:"Contact",
 
+    wordmark:"DECAKILA",
     heroBadge:"Authorized Distributor in Libya",
-    heroTitle1:"Appliances that make", heroTitle2:"every home easier.",
+    heroTitle:"Appliances that make every home easier.",
     slogan:"Making Fun Life Easier",
-    heroText:"Decakila kitchen and home appliances, officially distributed across Libya — backed by local warranty, genuine spare parts and seven branches ready to serve you.",
-    ctaProducts:"Explore Products", ctaBranch:"Find a Branch",
-    statBranches:"Branches nationwide", statProducts:"Products in range",
-    statWarranty:"Months local warranty", statGenuine:"Genuine spare parts",
+    heroText:"Decakila kitchen and home appliances, officially distributed across Libya — backed by local warranty, genuine spare parts and seven branches.",
+    ctaExplore:"Explore Now",
+    barNew:"NEW", barQuote:"“Excellent service.”",
+    barOfficial:"Authorized Distributor", barOfficialSub:"Official Decakila agent in Libya",
+    barBranches:"Branches across Libya",
 
     trust1:"Official Warranty", trust1s:"Registered at purchase",
     trust2:"In-House Service",  trust2s:"Trained technicians",
@@ -1513,13 +1525,15 @@ const T = {
     navHome:"الرئيسية", navProducts:"المنتجات", navAbout:"من نحن",
     navServices:"الخدمات", navBranches:"الفروع", navContact:"تواصل معنا",
 
+    wordmark:"ديكاكيلا",
     heroBadge:"الموزّع المعتمد في ليبيا",
-    heroTitle1:"أجهزة تجعل", heroTitle2:"كل بيت أسهل.",
+    heroTitle:"أجهزة تجعل كل بيت أسهل.",
     slogan:"حياة أسهل وأكثر متعة",
-    heroText:"أجهزة ديكاكيلا للمطبخ والمنزل، موزّعة رسمياً في كل ليبيا — بضمان محلي وقطع غيار أصلية وسبعة فروع في خدمتكم.",
-    ctaProducts:"تصفّح المنتجات", ctaBranch:"أقرب فرع إليك",
-    statBranches:"فروع في ليبيا", statProducts:"منتج في التشكيلة",
-    statWarranty:"شهراً ضمان محلي", statGenuine:"قطع غيار أصلية",
+    heroText:"أجهزة ديكاكيلا للمطبخ والمنزل، موزّعة رسمياً في كل ليبيا — بضمان محلي وقطع غيار أصلية وسبعة فروع.",
+    ctaExplore:"استكشف الآن",
+    barNew:"جديد", barQuote:"«خدمة ممتازة.»",
+    barOfficial:"الموزّع المعتمد", barOfficialSub:"الوكيل الرسمي لديكاكيلا في ليبيا",
+    barBranches:"فروع في أنحاء ليبيا",
 
     trust1:"ضمان رسمي", trust1s:"يُسجَّل عند الشراء",
     trust2:"صيانة داخلية", trust2s:"فنيّون مدرَّبون",
@@ -1601,24 +1615,20 @@ function applyLanguage(lang){
   root.setAttribute('lang', lang);
   root.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
-  // Text nodes
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const v = dict[el.dataset.i18n];
     if (v !== undefined) el.textContent = v;
   });
 
-  // Placeholders
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     const v = dict[el.dataset.i18nPh];
     if (v !== undefined) el.setAttribute('placeholder', v);
   });
 
-  // Document metadata
   document.title = lang === 'ar'
     ? 'ديكاكيلا ليبيا — حياة أسهل وأكثر متعة'
     : 'Decakila Libya — Making Fun Life Easier';
 
-  // Switcher state
   langButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
 
   try { localStorage.setItem(STORE_KEY, lang); } catch(e){ /* private mode */ }
@@ -1628,10 +1638,91 @@ langButtons.forEach(btn => {
   btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
 });
 
-// Restore the visitor's choice, else fall back to the browser language
 let initial = 'en';
 try { initial = localStorage.getItem(STORE_KEY) || ((navigator.language||'').startsWith('ar') ? 'ar' : 'en'); } catch(e){}
 applyLanguage(initial);
+
+/* ==========================================================================
+   HERO PRODUCT IMAGE
+   --------------------------------------------------------------------------
+   Two jobs, both of which HTML alone cannot do:
+
+   1. EXTENSION. The asset is known only as "052r". <picture>/<source> selects
+      by MIME support, not by whether the file exists, so it cannot fall back
+      on a 404. Each candidate is probed in turn and the first that decodes
+      wins.
+
+   2. THE BLEND. `multiply` is what melts a WHITE backdrop into the page, and
+      it is applied by default because that is the common export. But it also
+      multiplies the product's own channels by the red behind it, which on a
+      saturated ground crushes green and blue and leaves a red duotone.
+      A file that already carries transparency needs no blend at all and keeps
+      its true colour, so the alpha channel is sampled and the blend dropped
+      when one is found. Reading pixels needs a same-origin image, which
+      file:// does not provide — if the read is blocked the blend simply stays,
+      which is the requested behaviour anyway.
+   ========================================================================== */
+(function resolveProductImage(){
+  const img   = document.getElementById('heroProduct');
+  const stage = document.getElementById('heroStage');
+  if (!img || !stage) return;
+
+  const CANDIDATES = ['052r.png','052r.webp','052r.jpg','052r.jpeg','052r.avif','052r'];
+
+  function hasAlpha(el){
+    try {
+      const w = Math.min(el.naturalWidth  || 0, 180);
+      const h = Math.min(el.naturalHeight || 0, 180);
+      if (!w || !h) return null;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d', { willReadFrequently:true });
+      ctx.drawImage(el, 0, 0, w, h);
+      const d = ctx.getImageData(0, 0, w, h).data;
+      for (let i = 3; i < d.length; i += 4){
+        if (d[i] < 250) return true;          // a genuinely transparent pixel
+      }
+      return false;
+    } catch(e){
+      return null;                            // cross-origin / file:// — unknown
+    }
+  }
+
+  function adopt(src){
+    img.src = src;
+    img.classList.add('is-ready');
+
+    const alpha = hasAlpha(img);
+    if (alpha === true){
+      // Real transparency: no blend (true colours) and a silhouette shadow.
+      img.classList.add('has-alpha');
+    } else if (alpha === null){
+      console.info(
+        '[hero] Could not sample "' + src + '" for transparency (same-origin ' +
+        'reading is blocked on file:// URLs). Keeping mix-blend-mode: multiply. ' +
+        'Serve the page over http:// to let the page detect an alpha channel ' +
+        'and switch the blend off automatically.'
+      );
+    }
+  }
+
+  function tryNext(i){
+    if (i >= CANDIDATES.length){
+      stage.classList.add('is-empty');
+      console.warn(
+        '[hero] No product image found. Tried: ' + CANDIDATES.join(', ') +
+        '. Drop the file next to index.html, or edit CANDIDATES to match its name.'
+      );
+      return;
+    }
+    const probe = new Image();
+    probe.onload  = () => adopt(CANDIDATES[i]);
+    probe.onerror = () => tryNext(i + 1);
+    probe.src = CANDIDATES[i];
+  }
+
+  tryNext(0);
+})();
 
 /* ==========================================================================
    HEADER: scroll state + mobile menu
@@ -1723,242 +1814,6 @@ chips.forEach(chip => {
     });
   });
 });
-
-/* ==========================================================================
-   SCROLL-BOUND VIDEO SCRUBBING
-   --------------------------------------------------------------------------
-   Binds hero.mp4's currentTime to scroll position through .hero-track.
-
-   How it stays smooth:
-   · Scroll listener is passive and does no work beyond waking the rAF loop.
-     All reading and writing happens inside one frame callback, so scrolling
-     never triggers a synchronous layout.
-   · Layout metrics (track offset, scrub range) are measured once and re-
-     measured only on resize — never per frame.
-   · The played time eases toward the scroll target instead of snapping to it.
-     That is what turns a jumpy seek into an Apple-style glide, and it makes
-     reverse scrubbing feel identical to forward.
-   · Seeks are skipped while a previous seek is still in flight, so a fast
-     flick queues one seek rather than fighting the decoder for dozens.
-   · The loop is only alive while the hero is on screen, and parks itself as
-     soon as the eased time settles on the target.
-
-   Degrades cleanly: if the video errors or never reports a duration, the
-   track collapses to a normal one-screen hero over the gradient, so a
-   missing hero.mp4 never leaves three screens of empty scrolling.
-   ========================================================================== */
-(function initScrubbing(){
-  const track = document.getElementById('heroTrack');
-  const video = document.getElementById('blenderVideo');
-  if (!track || !video) return;
-
-  const EASE     = 0.14;      // 0 = never catches up, 1 = hard snap
-  const EPSILON  = 1 / 240;   // finer than a frame — below this, stop seeking
-  const LOAD_TIMEOUT = 8000;  // give up waiting for metadata after this
-
-  let duration   = 0;
-  let trackTop   = 0;
-  let scrubRange = 1;
-  let eased      = 0;         // the time we are easing toward the target
-  let rafId      = null;
-  let onScreen   = false;
-  let ready      = false;
-  let startedAt  = 0;
-
-  /* A seek is only accepted once the browser reports the target inside a
-     seekable range. Early in a slow load every write is silently dropped, so
-     we must never assume a write landed — always compare against the element's
-     real currentTime, and retry as more of the file arrives. */
-  function seekable(t){
-    const r = video.seekable;
-    for (let i = 0; i < r.length; i++){
-      if (t >= r.start(i) - 0.01 && t <= r.end(i) + 0.01) return true;
-    }
-    return false;
-  }
-
-  function writeTime(t){
-    if (video.seeking || !seekable(t)) return false;
-    try { video.currentTime = t; } catch(e){ return false; }
-    return true;
-  }
-
-  /* ---- Layout measurement (never inside the rAF loop) ------------------ */
-  function measure(){
-    const rect = track.getBoundingClientRect();
-    trackTop   = rect.top + window.scrollY;
-    // Distance the page scrolls while the hero is pinned.
-    scrubRange = Math.max(1, track.offsetHeight - window.innerHeight);
-  }
-
-  function progress(){
-    const p = (window.scrollY - trackTop) / scrubRange;
-    return p < 0 ? 0 : p > 1 ? 1 : p;
-  }
-
-  /* ---- The frame loop -------------------------------------------------- */
-  function frame(){
-    rafId = null;
-
-    const p      = progress();
-    const target = p * duration;
-
-    // Expose progress to CSS for the scrub bar and the fading scroll cue.
-    track.style.setProperty('--scrub', p.toFixed(4));
-
-    const delta = target - eased;
-    if (Math.abs(delta) < EPSILON) eased = target;   // settle exactly
-    else                           eased += delta * EASE;
-
-    // Compare against the element's ACTUAL time, not the last value we tried
-    // to write. A dropped seek then simply re-attempts on the next frame
-    // instead of leaving the hero stuck on a stale frame.
-    const drifted = Math.abs(eased - video.currentTime) > EPSILON;
-    if (drifted) writeTime(eased);
-
-    // Keep going while there is distance left to close, or while the element
-    // still has not caught up to where it should be.
-    if (onScreen && (Math.abs(target - eased) > EPSILON || drifted)) schedule();
-  }
-
-  function schedule(){
-    if (rafId === null && ready) rafId = requestAnimationFrame(frame);
-  }
-
-  /* Jump straight to the scroll position's frame, skipping the easing.
-     Used when the hero leaves the viewport and when the page loads already
-     scrolled. Unlike the loop this forces the write even mid-seek, because
-     this value is final rather than one step of an animation — and it
-     re-applies once any in-flight seek lands, so it can't be overwritten. */
-  function snap(){
-    const p = progress();
-    eased = p * duration;
-    track.style.setProperty('--scrub', p.toFixed(4));
-    if (!writeTime(eased)){
-      // Not seekable yet (or mid-seek) — retry when that changes.
-      video.addEventListener('seeked',      () => writeTime(eased), { once:true });
-      video.addEventListener('canplaythrough', () => writeTime(eased), { once:true });
-    }
-  }
-
-  /* ---- Wiring ---------------------------------------------------------- */
-  function start(){
-    if (ready) return;
-    ready = true;
-    duration = video.duration;
-    startedAt = performance.now();
-    // Buffering events stop firing once the file is complete, so the
-    // seekability verdict also needs its own deadline.
-    setTimeout(checkSeekable, 2800);
-    measure();
-    track.classList.add('is-scrubbing');
-    video.classList.add('is-ready');
-    // Paint the frame that matches wherever the page is already scrolled
-    // (reloads restore scroll position, deep links land mid-page).
-    snap();
-  }
-
-  function fallback(keepFrame){
-    ready = false;
-    if (rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
-    track.classList.add('is-static');
-    track.classList.remove('is-scrubbing');
-    if (!keepFrame) video.classList.remove('is-ready');
-  }
-
-  /* A file can be fully downloaded and still refuse to seek: that happens when
-     it carries no seek index (exported without a faststart/moov-first pass) or
-     when the host does not answer HTTP range requests. Scrubbing is then
-     impossible — every write to currentTime is dropped — so rather than leave
-     a frozen first frame above three screens of dead scroll, fall back to a
-     normal hero and say why, loudly enough for whoever wires up the real file. */
-  let seekChecked = false;
-  function checkSeekable(){
-    if (!ready || seekChecked) return;
-    const sk  = video.seekable;
-    const span = sk.length ? sk.end(sk.length - 1) - sk.start(0) : 0;
-    if (span >= duration * 0.5){ seekChecked = true; return; }
-
-    const buf = video.buffered;
-    const bufEnd = buf.length ? buf.end(buf.length - 1) : 0;
-    if (bufEnd >= duration - 0.25 && performance.now() - startedAt > 2500){
-      seekChecked = true;
-      console.warn(
-        '[hero] hero.mp4 is fully buffered but not seekable, so scroll ' +
-        'scrubbing cannot run. Re-export it with a front-loaded index ' +
-        '(ffmpeg -movflags +faststart) and serve it from a host that ' +
-        'supports HTTP range requests. Falling back to a static hero.'
-      );
-      fallback(true);
-    }
-  }
-
-  // Reduced motion: no scrubbing. Show one representative frame, statically.
-  if (reduced){
-    video.addEventListener('loadeddata', () => {
-      try { video.currentTime = (video.duration || 0) * 0.4; } catch(e){}
-      video.classList.add('is-ready');
-    }, { once:true });
-    track.classList.add('is-static');
-    return;
-  }
-
-  video.addEventListener('loadedmetadata', () => {
-    if (!video.duration || !isFinite(video.duration)) { fallback(); return; }
-    // iOS will not decode a frame from a video that has never played.
-    // Priming it muted, then pausing immediately, makes seeking work there.
-    const primed = video.play();
-    if (primed && primed.then){
-      primed.then(() => { video.pause(); start(); }).catch(() => start());
-    } else {
-      video.pause(); start();
-    }
-  });
-
-  video.addEventListener('error', fallback);
-
-  // If hero.mp4 is missing entirely, no error may ever fire — time out.
-  const guard = setTimeout(() => { if (!ready) fallback(); }, LOAD_TIMEOUT);
-  video.addEventListener('loadedmetadata', () => clearTimeout(guard), { once:true });
-
-  // Passive listener: wakes the loop, touches no layout.
-  window.addEventListener('scroll', schedule, { passive:true });
-
-  // As more of the file arrives, previously-rejected seeks become possible.
-  // Waking the loop on these lets a hero that loaded slowly catch up by itself
-  // rather than sitting frozen on the first frame.
-  ['progress','canplay','canplaythrough','loadeddata','seeked'].forEach(ev => {
-    video.addEventListener(ev, () => { checkSeekable(); schedule(); });
-  });
-
-  window.addEventListener('resize', () => {
-    if (!ready) return;
-    measure();
-    schedule();
-  }, { passive:true });
-
-  // Only run while the hero is actually visible.
-  if ('IntersectionObserver' in window){
-    new IntersectionObserver(entries => {
-      onScreen = entries[0].isIntersecting;
-      if (onScreen){
-        schedule();
-      } else {
-        if (rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
-        // Parking the loop mid-ease would freeze the video on a half-way
-        // frame — scroll back up and the hero is showing the wrong moment.
-        // Snap to the boundary the hero was left at instead.
-        if (ready) snap();
-      }
-    }, { threshold: 0 }).observe(track);
-  } else {
-    onScreen = true;
-  }
-
-  // The video is already in the DOM with a src, so metadata may have landed
-  // before this ran.
-  if (video.readyState >= 1) video.dispatchEvent(new Event('loadedmetadata'));
-})();
 
 /* ==========================================================================
    DEMO FORM — validates in the browser, submits nowhere

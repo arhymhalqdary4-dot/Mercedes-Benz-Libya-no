@@ -61,8 +61,9 @@ treatments, which are latin-only conventions.
 1. **Logo.** `.logo` is a CSS reconstruction of the wordmark, not the real asset.
    Replace the contents of both `.logo` blocks (header and footer) with
    `<img src="decakila-logo.svg" alt="Decakila">`.
-2. **Hero video.** Drop `hero.mp4` next to `index.html`. It has one hard
-   encoding requirement — see *Scroll-bound video scrubbing* below.
+2. **Hero product image.** Drop `052r.<ext>` next to `index.html` — see
+   *The hero* below for the extensions tried and why a transparent PNG is worth
+   exporting.
 3. **Products.** Four dummy cards. Model numbers, specs and the `data-cat`
    filter values are invented.
 4. **Contact details.** Phone, email, addresses and opening hours are structurally
@@ -72,139 +73,90 @@ treatments, which are latin-only conventions.
 6. **Contact form.** Validates in the browser and shows a toast; it does not
    submit anywhere.
 
-## The hero: split layout + scroll-bound scrubbing
+## The hero: centred product on brand red
 
-The hero is a two-column split — copy on a solid brand panel, footage in its own
-column — and the whole thing is pinned while `hero.mp4`'s `currentTime` is bound
-to scroll position, so the render advances frame-by-frame as you scroll down and
-reverses as you scroll up.
-
-### Structure
+Static and self-contained — no video, no scroll binding, nothing scheduled per
+frame. The product sits dead centre with the display wordmark behind it and the
+slogan, headline and CTA stacked beneath.
 
 ```
-.hero-track          height: var(--hero-scroll)  ← supplies the scroll distance
-  └ .hero            position: sticky; top: 0    ← BOTH columns pin together
-        display: grid; grid-template-columns: 1fr 1fr
-      ├ .hero__panel   the copy, on solid --hero-panel
-      │   └ .hero__seam  the logo's S-curve, stood up as the column seam
-      └ .hero__media   the video column, and nothing else
-          ├ .hero__video   object-fit: cover, full opacity
-          └ .hero__progress
+.hero                    background: var(--hero-bg)  ← Decakila red, flat
+  ├ .hero__eyebrow
+  ├ .hero__stage         position: relative; display: grid; place-items: center
+  │   ├ .hero__wordmark    absolute, centred — out of flow
+  │   ├ .hero__glow        absolute, centred — out of flow
+  │   └ .hero__product     the ONLY in-flow item, so it defines the centre
+  ├ .hero__lede          slogan · headline · text · white CTA
+  └ .hero__bar           three-cell credibility strip
 ```
 
-Both columns are pinned together rather than one scrolling past the other. With
-the copy on its own ground there is nothing for it to scroll against, and a
-column sliding beside a pinned one reads as two competing motions — the video
-already supplies all the movement the section needs.
+Only the product participates in layout. The wordmark is wider than the
+container above ~1366px, and as an in-flow grid item it stretched the column and
+pushed the product off-centre by half the overflow — 58px at 1440. Out of flow,
+the product is centred by the container alone at every width, and the wordmark
+is free to bleed toward the viewport edges as display type should. Both are
+centred with physical `left`/`top` + `translate`, which is symmetric and so
+behaves identically in LTR and RTL.
 
-### Direction
+### The image file
 
-Column order is DOM order (copy, then video) and a CSS grid lays its columns out
-along the document direction. So LTR puts copy left / video right, RTL puts copy
-right / video left, with no direction-specific rules at all. The seam curve
-mirrors; the video deliberately does not, since it is a product render rather
-than an ornament.
+The asset is known only as `052r`. `<picture>`/`<source>` selects by MIME
+support rather than by whether a file exists, so it cannot fall back on a 404 —
+instead each candidate is probed in turn and the first that decodes wins:
 
-### The text panel
-
-`--hero-panel` is the copy column's background — brand red by default. Set it to
-`var(--white)` for the cooler, lighter treatment, in which case also flip
-`.hero__panel { color }` and swap the two hero buttons for their dark-on-light
-variants.
-
-Because the copy now sits on solid colour rather than over footage, it needs no
-scrim, no overlay and no text-shadow — white on `#E30613` is a flat 4.92:1 at
-every scroll position, independent of what the video is doing. That is the real
-gain of the split over a full-bleed background: contrast stops being a function
-of the frame on screen.
-
-`--hero-scroll` (default `400vh`) is the only knob for how long the scrub lasts:
-one viewport of pinning plus three of scrubbing. Raise it for a slower, more
-deliberate scrub; lower it to get through the clip faster.
-
-Because the hero is pinned for the whole track, the page cannot move past it
-until the scrub is finished — normal scrolling resumes exactly when the video
-reaches its last frame. That falls out of the sticky layout; no scroll
-hijacking, no wheel interception, so trackpads, keyboards, scrollbars and
-browser find-in-page all behave normally.
-
-### How it stays smooth
-
-- The scroll listener is passive and does nothing but wake the rAF loop. All
-  reads and writes happen inside one frame callback, so scrolling never forces
-  a synchronous layout.
-- Layout metrics are measured once and re-measured only on resize — never per
-  frame.
-- The played time *eases* toward the scroll target rather than snapping to it.
-  That easing is what turns a jumpy seek into a glide, and it makes reverse
-  scrubbing feel identical to forward.
-- Seeks are skipped while a previous seek is in flight, so a fast flick queues
-  one seek instead of fighting the decoder for dozens.
-- The loop only runs while the hero is on screen, and parks itself as soon as
-  the eased time settles — measured at 0 rAF calls per second when idle.
-
-### The one hard requirement: the file must be seekable
-
-Scroll scrubbing is seeking, and a video can be *fully downloaded and still
-refuse to seek* if it carries no seek index. When that happens every write to
-`currentTime` is silently dropped and the hero freezes on frame one. Export with
-the index at the front:
-
-```bash
-ffmpeg -i source.mov -c:v libx264 -pix_fmt yuv420p \
-       -movflags +faststart -an hero.mp4
+```
+052r.png · 052r.webp · 052r.jpg · 052r.jpeg · 052r.avif · 052r
 ```
 
-Also make sure the host answers HTTP range requests (almost all do; some
-naive static servers do not).
+Edit `CANDIDATES` in `resolveProductImage()` if the real name differs. If none
+resolve, the stage keeps its shape, the wordmark carries the hero on its own,
+and the console names every path that was tried.
 
-Two further encoding notes:
+### The blend, and what it costs
 
-- **Keyframes.** Seeking lands on the nearest keyframe, so a clip with the
-  default one every ~250 frames will scrub in visible steps. Add `-g 10` or
-  lower for dense keyframes — it inflates the file, which is the trade you want
-  here. `-g 1` (all keyframes) is smoothest and largest.
-- **Size.** The whole clip must download before it can scrub cleanly. Keep it
-  short and modest in resolution; 1280×720 is plenty at hero scale.
+`mix-blend-mode: multiply` computes `backdrop x source` per channel. A **white**
+source is the identity for that operation, so a white background multiplied by
+anything disappears completely — verified by scanning across the image boundary,
+where the largest step is 1/255, i.e. no visible edge at all.
 
-The page detects the unseekable case: if the file finishes buffering and still
-cannot seek, it collapses to a normal one-screen hero and logs a console warning
-explaining the fix, rather than leaving a frozen frame above three screens of
-dead scroll.
+The same maths applies to the product. Against `#E30613` the green and blue
+channels are multiplied by roughly 0.02 and 0.07, so a steel-and-glass render
+comes out as a red duotone rather than in its own colours. **This is inherent to
+multiply on a saturated ground, not a bug.** Two things follow from it:
 
-### Degradation
+- **`.hero__glow` is load-bearing, not decoration.** A lighter backdrop is the
+  only lever that stops the red crushing the render, so the spotlight behind the
+  product buys back colour fidelity at the centre and lets it sink into brand red
+  at the edges. Raise the centre stop for more fidelity, lower it for a flatter,
+  more graphic look.
+- **No drop-shadow under multiply.** A white-background file is opaque across its
+  whole rectangle, so `filter: drop-shadow()` traces that *rectangle* rather than
+  the product — painting the exact box the blend exists to hide. Measured at a
+  12/255 step before removal, 1/255 after.
 
-| Situation | Behaviour |
-| --- | --- |
-| `hero.mp4` missing or errors | Track collapses to a normal hero over the gradient; no dead scroll |
-| File loads but is not seekable | Same collapse, plus a console warning naming the fix |
-| Still buffering | Seeks retry automatically as data arrives — it catches up on its own |
-| `prefers-reduced-motion` | No scrubbing; one representative frame, shown statically |
-| Hero scrolled past quickly | Snaps to the boundary frame instead of freezing mid-ease |
+### Transparency is detected, and preferred
 
-In every fallback the split layout itself survives — only the pinning and the
-scrubbing stop. The track collapses to a single screen and the two columns sit
-side by side as a static hero.
+The only way to have a background-free product in *natural colour* on red is a
+real alpha channel, which needs no blend at all. So the image is sampled at
+runtime and, if any pixel is transparent, it gets `.has-alpha`: the blend drops
+to `normal` and the drop-shadow switches on, since it now follows the product's
+silhouette instead of its bounding box.
+
+Pixel reading requires a same-origin image, which `file://` does not provide. If
+the read is blocked the blend simply stays as `multiply` — the requested
+behaviour — and the console says so. Serve over `http://` to get the automatic
+upgrade.
+
+**In short: if you can export `052r` as a PNG with transparency, do. It looks
+materially better on red and the page will use it automatically.**
 
 ### Responsive
 
-Below 860px the two columns stack: footage on top (about a third of the
-viewport), copy beneath. Video-on-top is deliberate — the fixed header then
-floats over the footage instead of the copy, so the panel needs no header
-clearance and gains that space back for text. The vertical seam becomes a
-horizontal swoosh curving up out of the copy panel.
-
-Two things shrink to fit a phone: the four stats go to a 2×2 grid below 620px,
-and the supporting paragraph is hidden below 620px — it is the one block that
-will not fit alongside the headline, slogan, buttons and stats. It stays on
-tablets. Verified with copy-fits-panel measurements at 390×844, 360×740 and
-768×1024 in both languages.
-
-### Bilingual
-
-Scrubbing is driven by vertical scroll, so it is direction-agnostic and works
-identically in both languages. Switching language mid-scrub keeps the current
-position.
+The product is sized by `height: clamp(230px, 42vh, 430px)` with
+`max-width: min(84vw, 460px)`, so it scales with the viewport and never
+overflows. Below 620px the credibility bar drops from three cells to two — the
+testimonial steps aside, since three columns do not read at phone width.
+Verified centred with no horizontal overflow at 390, 768, 1280 and 1440.
 
 ## Accessibility and responsive notes
 
