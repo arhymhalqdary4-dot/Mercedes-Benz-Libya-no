@@ -1,55 +1,111 @@
-# Mercedes-Benz Libya — landing application
+# Decakila Libya
 
-A single self-contained file, `index.html`. No build step, no dependencies, no
-network calls. Open it directly, or serve the directory with any static host.
+A bilingual single-page site for the Decakila appliance range in Libya. Four
+views — Home, Products, Services, About us — swap in place with hash routing,
+so `#/products?cat=kitchen` is a real, shareable link and browser back/forward
+both work.
 
-Four views (Home, Models, Services, About Us) swap in place with hash routing,
-so browser back/forward and deep links such as `#/models` both work.
+`index.html` is the whole site: one file, no build step to serve it, no network
+calls at runtime. Open it directly or drop it on any static host.
 
-## Bilingual
+## Building
 
-One button in the header switches the whole application between Arabic (RTL)
-and English (LTR): text, layout direction, type stack, per-script letter-spacing,
-and the direction the vehicle silhouettes face. The choice is remembered between
-visits.
+`index.html` is generated. Edit the sources, not the output.
 
-All copy lives in the `T` object at the top of the script — `T.en` and `T.ar`
-share one set of keys. Adding a string means adding it to both and tagging the
-element with `data-i18n="key"`.
+```
+npm install     # Tailwind CSS v4 CLI, dev-only
+npm run build   # → index.html + artifact.html
+```
+
+| Path                 | What it is                                                    |
+| -------------------- | ------------------------------------------------------------- |
+| `src/page.html`      | Markup and application script                                 |
+| `src/copy.js`        | Every interface string, English and Arabic                    |
+| `src/theme.css`      | Tailwind entry: brand tokens, both themes, the curve motif    |
+| `data/products.json` | 625 catalogue products extracted from the Decakila price list |
+| `assets/`            | Logo, and the white wordmark derived from it                  |
+| `build.mjs`          | Compiles Tailwind and inlines CSS, data and logos             |
+
+The build produces the same site in three shapes:
+
+- **`index.html`** — everything inlined. One file, 549 KB, opens by
+  double-clicking. Nothing else needed.
+- **`artifact.html`** — the same page as a body fragment, for hosts that supply
+  their own `<head>`.
+- **`local/`** — the split layout: `index.html` (40 KB) beside `styles.css`,
+  `products.js`, `copy.js` and `assets/`. Use this one to read or hand-edit the
+  page — the catalogue, the stylesheet and the translations stay out of your
+  way. Both side scripts load as classic `<script>` tags rather than `fetch()`,
+  so the split layout still runs from `file://` with no server.
+
+Both layouts render identically. Pick one — don't mix files between them.
+
+## Catalogue data
+
+`data/products.json` was extracted from the supplied Decakila price-list PDF —
+625 items with model code, English and Arabic name, category, and the first
+three specifications for each. Categories are derived from the product names:
+
+| Category               | Items |
+| ---------------------- | ----: |
+| Kitchen Appliances     |   283 |
+| Cookware & Kitchenware |   134 |
+| Personal Care          |    79 |
+| Major Appliances       |    56 |
+| Home Care & Cleaning   |    37 |
+| Cooling & Heating      |    18 |
+| Spare Parts            |    18 |
+
+Wholesale and retail prices appear in the source PDF and were deliberately left
+out of the site — the product cards lead to a quote request instead.
+
+Arabic product names are generated from an English→Arabic term map in the
+extraction script. They read correctly but are machine-produced; worth a pass by
+someone who sells these units daily before launch.
+
+## Language
+
+The globe button in the navbar switches the whole interface between English
+(LTR) and Arabic (RTL): copy, layout direction, type stack, and the direction of
+the curve motif and chevrons. The choice is remembered between visits, and a
+first-time visitor on an Arabic browser lands in Arabic.
+
+All copy lives in `src/copy.js` (`local/copy.js` in the split layout) — `T.en`
+and `T.ar` share one set of keys. Add a string to both and tag the element with
+`data-i18n="key"`, or read it in a view with `t("key")`. Nothing else needs
+touching to change wording, so a translator can work in that one file.
+
+## Design
+
+Brand red `#E10800` is sampled from the logo. Neutrals carry a trace of that red
+so greys read as part of the same palette. The logotype's lower edge — a long
+S-curve — is the page's structural motif: it closes the hero and every red band,
+and mirrors under RTL.
+
+The page follows the viewer's light/dark preference. Every colour is a token
+defined in `:root`, redefined for `prefers-color-scheme: dark` and again for an
+explicit `data-theme` stamp, so both themes hold whichever way the host renders.
 
 ## Before this goes live
 
-Two things in the file are placeholders and need real values:
+1. **Hero video.** The hero `<video>` loads `hero.mp4` from beside `index.html`;
+   until that file exists the ambient brand field behind it shows instead, which
+   is a deliberate fallback, not a broken state. Drop in a muted H.264 file
+   (roughly 8–15 s, under ~5 MB) and it takes over on its own.
 
-1. **Hero video.** The `<source>` in `#heroVideo` points at the URL supplied for
-   the build, which is not publicly reachable — the hero currently renders its
-   ambient fallback instead. Replace the `src` with a hosted MP4 (H.264, muted,
-   roughly 8–15 s, ideally under 5 MB) and the fallback stands down on its own.
-   Nothing else needs changing; the detection is automatic.
+2. **Product photography.** Each card requests `images/<MODEL-CODE>.jpg` — for
+   example `images/KEEC007B.jpg` — and falls back to the line-art placeholder
+   when the file is missing. Add photos named by model code and they appear; no
+   code change needed.
 
-2. **Contact details.** Phone numbers, addresses, map coordinates and opening
-   hours in the `LOCATIONS` array — and the numbers in the services panel and
-   footer — are structurally correct but invented. Swap them for the real ones.
+3. **Contact details.** The phone number, email, cities and opening hours in the
+   footer and quote panel are placeholders.
 
-Vehicle figures are manufacturer WLTP/EU specification. Prices are indicative
-landed estimates in USD before duty and registration, and are labelled as such
-in the footer.
+4. **The quote form.** It validates in-browser and issues a reference number,
+   then shows the request for the customer to send on. Nothing is transmitted —
+   wire the submit handler in `src/page.html` to your endpoint, WhatsApp Business
+   link or CRM.
 
-## Booking form
-
-The appointment modal validates in-browser and issues a reference number. It has
-no backend — nothing is transmitted anywhere, and the form says so. Point the
-`submit` handler in section 13 of the script at your endpoint to make it live.
-
-## Notes on the build
-
-- Typefaces (Archivo, IBM Plex Sans Arabic, IBM Plex Mono) are subset to the
-  glyphs actually used and embedded as data URIs, so the page renders identically
-  offline and behind a strict content-security policy.
-- The utility classes at the top of the stylesheet deliberately mirror Tailwind's
-  names. Dropping this markup into a Tailwind project means deleting that block;
-  the class names resolve against the framework unchanged.
-- Vehicle imagery is drawn as inline SVG — one silhouette per body style — rather
-  than loaded from files.
-- Respects `prefers-reduced-motion`; all interactive elements are keyboard
-  reachable with a visible focus state.
+5. **Commercial claims.** Warranty terms, delivery coverage and service promises
+   on the Services and About pages are written as placeholders. Confirm them
+   against what the business actually offers.

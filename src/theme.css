@@ -1,0 +1,344 @@
+@import "tailwindcss";
+@source "./page.html";
+
+/* ── Brand tokens ───────────────────────────────────────────────────────────
+   Red sampled from the Decakila logotype: #E10800.
+   Neutrals are biased warm (a trace of the brand red) so greys read as chosen
+   rather than inherited. Light palette lives on bare :root; dark redefines the
+   same names in two places so both the OS setting and an explicit stamp win.  */
+:root {
+  --brand: #e10800;
+  --brand-strong: #a50500;
+  --brand-soft: #ffe9e6;
+  --brand-tint: #fff5f3;
+  --on-brand: #ffffff;
+
+  --ground: #fbf6f5;
+  --ground-alt: #f5eceb;
+  --surface: #ffffff;
+  --surface-2: #fdf8f7;
+  --line: #eeddda;
+  --line-strong: #e2c9c5;
+  --ink: #1a100e;
+  --ink-2: #4b3835;
+  --muted: #7c6a66;
+  --shadow: 26 16 14;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand: #ff3a22;
+    --brand-strong: #e10800;
+    --brand-soft: #3a1512;
+    --brand-tint: #241110;
+    --on-brand: #ffffff;
+
+    --ground: #120c0b;
+    --ground-alt: #180f0e;
+    --surface: #1c1413;
+    --surface-2: #241a18;
+    --line: #33241f;
+    --line-strong: #46312c;
+    --ink: #f8f0ee;
+    --ink-2: #d8c6c2;
+    --muted: #a89290;
+    --shadow: 0 0 0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --brand: #ff3a22;
+  --brand-strong: #e10800;
+  --brand-soft: #3a1512;
+  --brand-tint: #241110;
+  --on-brand: #ffffff;
+
+  --ground: #120c0b;
+  --ground-alt: #180f0e;
+  --surface: #1c1413;
+  --surface-2: #241a18;
+  --line: #33241f;
+  --line-strong: #46312c;
+  --ink: #f8f0ee;
+  --ink-2: #d8c6c2;
+  --muted: #a89290;
+  --shadow: 0 0 0;
+}
+
+@theme {
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-tint: var(--brand-tint);
+  --color-on-brand: var(--on-brand);
+  --color-ground: var(--ground);
+  --color-ground-alt: var(--ground-alt);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+
+  --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Variable Display",
+    "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", "Consolas",
+    monospace;
+
+  --radius-card: 1.25rem;
+  --shadow-lift: 0 1px 2px rgb(var(--shadow) / 0.06),
+    0 12px 28px -14px rgb(var(--shadow) / 0.22);
+  --shadow-float: 0 2px 4px rgb(var(--shadow) / 0.08),
+    0 28px 60px -24px rgb(var(--shadow) / 0.32);
+}
+
+/* Arabic runs on its own stack; Tahoma is the reliable fallback everywhere. */
+[dir="rtl"] body,
+[dir="rtl"] .font-display {
+  font-family: "SF Arabic", "Segoe UI", "Noto Sans Arabic", "Dubai", Tahoma,
+    sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3 {
+  letter-spacing: 0;
+}
+.eyebrow {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+[dir="rtl"] .eyebrow {
+  letter-spacing: 0.04em;
+}
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+::selection {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+/* The logotype's red field ends in a long S-curve. That curve is the page's
+   structural motif: it closes the hero and every red band, and mirrors in RTL. */
+.curve-cut {
+  display: block;
+  width: 100%;
+  height: clamp(38px, 6vw, 88px);
+  color: var(--ground);
+}
+[dir="rtl"] .curve-cut {
+  transform: scaleX(-1);
+}
+
+/* Ambient hero backdrop — what shows until hero.mp4 is in place, and the
+   ground the video composites over. */
+.hero-ambient {
+  background:
+    radial-gradient(
+      120% 90% at 78% 12%,
+      rgba(255, 255, 255, 0.26) 0%,
+      rgba(255, 255, 255, 0) 55%
+    ),
+    radial-gradient(
+      80% 70% at 8% 88%,
+      rgba(0, 0, 0, 0.34) 0%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    linear-gradient(152deg, #ff2a12 0%, #e10800 42%, #a50500 100%);
+}
+.hero-ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.16) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(90% 70% at 70% 30%, #000 0%, transparent 72%);
+  opacity: 0.5;
+}
+
+/* ── Hero stacking ────────────────────────────────────────────────────────
+   Three layers, explicit order: video (0) → scrim (10) → copy (20).
+   The video is framed so its subject sits in the half the text leaves empty,
+   and the scrim is weighted toward the text side, so the footage stays visible
+   where it matters and the words keep their contrast where they sit.        */
+.hero-media {
+  z-index: 0;
+  object-position: center;
+  /* Nudge the footage away from the copy. Most b-roll centres its subject, and
+     a 16:9 clip in a wide hero is cropped vertically — not horizontally — so
+     object-position alone cannot move it. This shift does, whatever the clip's
+     aspect ratio; the scale keeps the frame filled. Set --hero-shift to 0 if
+     your clip already frames its subject off to one side. */
+  --hero-shift: 11%;
+  transform: translateX(var(--hero-shift)) scale(1.24);
+  transform-origin: center;
+}
+[dir="rtl"] .hero-media {
+  transform: translateX(calc(-1 * var(--hero-shift))) scale(1.24);
+}
+@media (max-width: 1023px) {
+  /* Copy spans the width here, so leave the framing alone. */
+  .hero-media {
+    --hero-shift: 0%;
+    transform: none;
+  }
+}
+
+.hero-scrim {
+  z-index: 10;
+  /* Half strength over the ambient brand field, full strength once hero.mp4 is
+     playing and there is real footage to hold the type off. */
+  opacity: 0.5;
+  transition: opacity 0.7s ease;
+  background:
+    /* brand wash — keeps the hero unmistakably Decakila red over any footage */
+    linear-gradient(
+      90deg,
+      rgba(152, 5, 0, 0.78) 0%,
+      rgba(140, 4, 0, 0.6) 34%,
+      rgba(120, 4, 0, 0.3) 56%,
+      rgba(120, 4, 0, 0) 84%
+    ),
+    /* depth under the wash, so white type holds on a bright frame */
+      linear-gradient(
+        90deg,
+        rgba(18, 5, 3, 0.7) 0%,
+        rgba(18, 5, 3, 0.5) 32%,
+        rgba(18, 5, 3, 0.2) 56%,
+        rgba(18, 5, 3, 0) 82%
+      ),
+    linear-gradient(0deg, rgba(20, 5, 3, 0.55) 0%, rgba(20, 5, 3, 0) 45%);
+}
+.has-video .hero-scrim {
+  opacity: 1;
+}
+[dir="rtl"] .hero-scrim {
+  transform: scaleX(-1);
+}
+
+/* Narrow screens: the copy spans the full width, so the scrim does too and the
+   subject is framed nearer the centre. */
+@media (max-width: 767px) {
+  .hero-scrim {
+    background:
+      linear-gradient(
+        0deg,
+        rgba(152, 5, 0, 0.62) 0%,
+        rgba(140, 4, 0, 0.42) 55%,
+        rgba(120, 4, 0, 0.3) 100%
+      ),
+      linear-gradient(
+        0deg,
+        rgba(18, 5, 3, 0.72) 0%,
+        rgba(18, 5, 3, 0.52) 50%,
+        rgba(18, 5, 3, 0.42) 100%
+      );
+  }
+}
+
+.hero-copy {
+  z-index: 20;
+}
+.hero-copy h1,
+.hero-copy p {
+  text-shadow: 0 1px 14px rgba(12, 4, 3, 0.45);
+}
+
+.rise {
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.fade {
+  animation: fade 0.45s ease both;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Stand-in for product photography: a tinted frame with a hairline weave, so an
+   empty card reads as "photo pending" rather than as a blank panel. */
+.media-ph {
+  background:
+    radial-gradient(
+      58% 58% at 50% 42%,
+      color-mix(in oklab, var(--brand) 13%, transparent) 0%,
+      transparent 72%
+    ),
+    linear-gradient(140deg, var(--brand-tint), var(--surface-2));
+}
+.media-ph::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--brand) 8%, transparent) 0 1px,
+    transparent 1px 10px
+  );
+  opacity: 0.55;
+}
+
+.card-hover {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-float);
+  border-color: var(--line-strong);
+}
+.spec-list {
+  font-variant-numeric: tabular-nums;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
