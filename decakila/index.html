@@ -305,36 +305,102 @@ html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78r
 .burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
 
 /* ==========================================================================
-   8. HERO
+   8. HERO — scroll-bound video scrubbing
+   Structure: a tall .hero-track provides the scroll distance; .hero is
+   sticky inside it, so it stays pinned to the viewport while the page
+   scrolls past. Scroll progress through the track drives video.currentTime.
+   --hero-scroll is the ONLY knob for how long the scrub lasts.
    ========================================================================== */
-.hero{
+:root{ --hero-scroll: 300vh; }      /* 100vh pinned + 200vh of scrubbing */
+
+.hero-track{
   position:relative;
-  min-height:min(92vh, 820px);
-  margin-top:var(--header-h);
+  height:var(--hero-scroll);
+  background:var(--brand-red-deep);   /* covers any sub-pixel gap while pinned */
+}
+/* If the video can't load, the track collapses so there is no dead scroll. */
+.hero-track.is-static{ height:auto; }
+
+.hero{
+  position:sticky; top:0;
+  height:100vh;
+  height:100svh;                      /* stable on mobile as the URL bar moves */
   display:flex; align-items:center;
   background:linear-gradient(135deg, var(--brand-red-deep) 0%, var(--brand-red) 55%, #F5333F 100%);
   overflow:hidden;
   isolation:isolate;
 }
-/* Ambient fallback that shows until a real video is wired up */
+.hero-track.is-static .hero{ position:relative; height:auto; min-height:min(92vh,820px); }
+
+/* Ambient fallback — carries the hero on its own until the video decodes */
 .hero__ambient{
   position:absolute; inset:0; z-index:0; opacity:.5;
   background:
     radial-gradient(60% 60% at 78% 18%, rgba(255,255,255,.30) 0%, transparent 60%),
     radial-gradient(45% 45% at 12% 82%, rgba(0,0,0,.35) 0%, transparent 65%);
 }
+
+/* Pinned to the back of the hero, filling it at any aspect ratio. */
 .hero__video{
   position:absolute; inset:0; z-index:0;
-  width:100%; height:100%; object-fit:cover;
-  opacity:0;                       /* JS fades it in once it actually plays */
-  transition:opacity 600ms var(--ease);
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:center;
+  opacity:0;                          /* JS fades it in once a frame exists */
+  transition:opacity 700ms var(--ease);
+  pointer-events:none;                /* scroll passes straight through */
+  will-change:opacity;
 }
-.hero__video.is-ready{ opacity:.42; }
+.hero__video.is-ready{ opacity:.55; }
+
+/* The video is a product render, not a mirror image — it must NOT flip in RTL
+   the way the swoosh does. Stated explicitly so nothing inherits a flip. */
+html[dir="rtl"] .hero__video{ transform:none; }
+
+/* Readability: a fixed scrim plus a directional wash under the copy, so the
+   text holds contrast against whatever frame happens to be on screen. */
 .hero__scrim{
   position:absolute; inset:0; z-index:1;
-  background:linear-gradient(to bottom, rgba(90,2,8,.42) 0%, rgba(90,2,8,.12) 45%, rgba(90,2,8,.55) 100%);
+  background:
+    linear-gradient(to bottom, rgba(70,2,6,.50) 0%, rgba(70,2,6,.20) 42%, rgba(70,2,6,.62) 100%),
+    linear-gradient(to var(--scrim-dir, right), rgba(70,2,6,.62) 0%, rgba(70,2,6,.22) 55%, transparent 85%);
 }
-.hero .container{ position:relative; z-index:3; padding-block: clamp(90px,12vw,120px); }
+html[dir="rtl"] .hero__scrim{ --scrim-dir: left; }
+
+/* Scrub progress — a thin brand-red rule that fills as the video advances */
+.hero__progress{
+  position:absolute; inset-block-end:0; inset-inline-start:0; z-index:4;
+  height:3px; width:100%; transform-origin:left;
+  background:var(--brand-red);        /* red reads against the white swoosh */
+  transform:scaleX(var(--scrub, 0));
+  opacity:0; transition:opacity var(--t) var(--ease);
+}
+html[dir="rtl"] .hero__progress{ transform-origin:right; }
+.hero-track.is-scrubbing .hero__progress{ opacity:.85; }
+.hero-track.is-static .hero__progress{ display:none; }
+
+/* Scroll cue — teaches the interaction, then gets out of the way */
+.hero__cue{
+  /* Must clear the white swoosh (max 104px tall) — white-on-white otherwise. */
+  position:absolute; inset-block-end:clamp(96px,9vw,132px);
+  inset-inline-end:clamp(20px,5vw,32px); z-index:4;
+  display:flex; align-items:center; gap:10px;
+  color:rgba(255,255,255,.9); font-size:.8rem; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase;
+  opacity:calc(1 - var(--scrub, 0) * 3);   /* gone by a third of the way in */
+  transition:opacity 200ms linear;
+  pointer-events:none;
+}
+html[lang="ar"] .hero__cue{ letter-spacing:0; text-transform:none; font-size:.88rem; }
+.hero__cue svg{ width:16px; height:16px; animation:cueBob 1.8s var(--ease) infinite; }
+@keyframes cueBob{ 0%,100%{ transform:translateY(-2px); } 50%{ transform:translateY(3px); } }
+.hero-track.is-static .hero__cue{ display:none; }
+/* Header is fixed and translucent, so the pinned video runs behind it; the
+   copy is padded clear of it instead of the section being pushed down. */
+.hero .container{
+  position:relative; z-index:3;
+  padding-block: calc(var(--header-h) + clamp(24px,5vw,48px)) clamp(70px,9vw,96px);
+}
 .hero__inner{ max-width:830px; color:#fff; }
 
 .hero__eyebrow{
@@ -780,14 +846,19 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
 
 <main id="main">
 
-<!-- ======================= HERO ======================= -->
+<!-- ======================= HERO =======================
+     .hero-track supplies the scroll distance (--hero-scroll); .hero is
+     sticky inside it and stays pinned while the blender render scrubs.
+     ==================================================================== -->
+<div class="hero-track" id="heroTrack">
 <section class="hero" id="home">
   <div class="hero__ambient"></div>
 
-  <!-- Drop your MP4 into the src below; it fades in automatically once it plays. -->
-  <video class="hero__video" id="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
-    <!-- <source src="assets/decakila-hero.mp4" type="video/mp4"> -->
-  </video>
+  <!-- Scrubbed by scroll position — deliberately no autoplay and no loop. -->
+  <video class="hero__video" id="blenderVideo"
+         src="hero.mp4"
+         muted preload="auto" playsinline
+         disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
 
   <div class="hero__scrim"></div>
 
@@ -824,13 +895,23 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
     </div>
   </div>
 
+  <!-- Scroll cue — fades out once the scrub is underway -->
+  <div class="hero__cue" aria-hidden="true">
+    <span data-i18n="scrollCue">Scroll</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+  </div>
+
   <!-- BRAND SWOOSH — the logo's S-curve as a section divider -->
   <div class="swoosh swoosh--bottom" aria-hidden="true">
     <svg viewBox="0 0 1440 110" preserveAspectRatio="none">
       <path d="M0,110 L1440,110 L1440,24 C1180,102 1010,6 660,62 C430,99 190,104 0,58 Z" fill="#FFFFFF"/>
     </svg>
   </div>
+
+  <!-- Scrub progress -->
+  <div class="hero__progress" aria-hidden="true"></div>
 </section>
+</div><!-- /.hero-track -->
 
 <!-- ======================= TRUST STRIP ======================= -->
 <section class="trust">
@@ -1312,7 +1393,7 @@ const T = {
     heroTitle1:"Appliances that make", heroTitle2:"every home easier.",
     slogan:"Making Fun Life Easier",
     heroText:"Decakila kitchen and home appliances, officially distributed across Libya — backed by local warranty, genuine spare parts and seven branches ready to serve you.",
-    ctaProducts:"Explore Products", ctaBranch:"Find a Branch",
+    ctaProducts:"Explore Products", ctaBranch:"Find a Branch", scrollCue:"Scroll",
     statBranches:"Branches nationwide", statProducts:"Products in range",
     statWarranty:"Months local warranty", statGenuine:"Genuine spare parts",
 
@@ -1391,7 +1472,7 @@ const T = {
     heroTitle1:"أجهزة تجعل", heroTitle2:"كل بيت أسهل.",
     slogan:"حياة أسهل وأكثر متعة",
     heroText:"أجهزة ديكاكيلا للمطبخ والمنزل، موزّعة رسمياً في كل ليبيا — بضمان محلي وقطع غيار أصلية وسبعة فروع في خدمتكم.",
-    ctaProducts:"تصفّح المنتجات", ctaBranch:"أقرب فرع إليك",
+    ctaProducts:"تصفّح المنتجات", ctaBranch:"أقرب فرع إليك", scrollCue:"مرّر للأسفل",
     statBranches:"فروع في ليبيا", statProducts:"منتج في التشكيلة",
     statWarranty:"شهراً ضمان محلي", statGenuine:"قطع غيار أصلية",
 
@@ -1599,15 +1680,240 @@ chips.forEach(chip => {
 });
 
 /* ==========================================================================
-   HERO VIDEO — fades in only once a real source actually plays.
-   Until you add a <source>, the branded gradient stands in on its own.
+   SCROLL-BOUND VIDEO SCRUBBING
+   --------------------------------------------------------------------------
+   Binds hero.mp4's currentTime to scroll position through .hero-track.
+
+   How it stays smooth:
+   · Scroll listener is passive and does no work beyond waking the rAF loop.
+     All reading and writing happens inside one frame callback, so scrolling
+     never triggers a synchronous layout.
+   · Layout metrics (track offset, scrub range) are measured once and re-
+     measured only on resize — never per frame.
+   · The played time eases toward the scroll target instead of snapping to it.
+     That is what turns a jumpy seek into an Apple-style glide, and it makes
+     reverse scrubbing feel identical to forward.
+   · Seeks are skipped while a previous seek is still in flight, so a fast
+     flick queues one seek rather than fighting the decoder for dozens.
+   · The loop is only alive while the hero is on screen, and parks itself as
+     soon as the eased time settles on the target.
+
+   Degrades cleanly: if the video errors or never reports a duration, the
+   track collapses to a normal one-screen hero over the gradient, so a
+   missing hero.mp4 never leaves three screens of empty scrolling.
    ========================================================================== */
-const heroVideo = document.getElementById('hero-video');
-if (heroVideo){
-  heroVideo.addEventListener('playing', () => heroVideo.classList.add('is-ready'), { once:true });
-  heroVideo.addEventListener('error',   () => heroVideo.classList.remove('is-ready'));
-  if (reduced) heroVideo.pause();
-}
+(function initScrubbing(){
+  const track = document.getElementById('heroTrack');
+  const video = document.getElementById('blenderVideo');
+  if (!track || !video) return;
+
+  const EASE     = 0.14;      // 0 = never catches up, 1 = hard snap
+  const EPSILON  = 1 / 240;   // finer than a frame — below this, stop seeking
+  const LOAD_TIMEOUT = 8000;  // give up waiting for metadata after this
+
+  let duration   = 0;
+  let trackTop   = 0;
+  let scrubRange = 1;
+  let eased      = 0;         // the time we are easing toward the target
+  let rafId      = null;
+  let onScreen   = false;
+  let ready      = false;
+  let startedAt  = 0;
+
+  /* A seek is only accepted once the browser reports the target inside a
+     seekable range. Early in a slow load every write is silently dropped, so
+     we must never assume a write landed — always compare against the element's
+     real currentTime, and retry as more of the file arrives. */
+  function seekable(t){
+    const r = video.seekable;
+    for (let i = 0; i < r.length; i++){
+      if (t >= r.start(i) - 0.01 && t <= r.end(i) + 0.01) return true;
+    }
+    return false;
+  }
+
+  function writeTime(t){
+    if (video.seeking || !seekable(t)) return false;
+    try { video.currentTime = t; } catch(e){ return false; }
+    return true;
+  }
+
+  /* ---- Layout measurement (never inside the rAF loop) ------------------ */
+  function measure(){
+    const rect = track.getBoundingClientRect();
+    trackTop   = rect.top + window.scrollY;
+    // Distance the page scrolls while the hero is pinned.
+    scrubRange = Math.max(1, track.offsetHeight - window.innerHeight);
+  }
+
+  function progress(){
+    const p = (window.scrollY - trackTop) / scrubRange;
+    return p < 0 ? 0 : p > 1 ? 1 : p;
+  }
+
+  /* ---- The frame loop -------------------------------------------------- */
+  function frame(){
+    rafId = null;
+
+    const p      = progress();
+    const target = p * duration;
+
+    // Expose progress to CSS for the scrub bar and the fading scroll cue.
+    track.style.setProperty('--scrub', p.toFixed(4));
+
+    const delta = target - eased;
+    if (Math.abs(delta) < EPSILON) eased = target;   // settle exactly
+    else                           eased += delta * EASE;
+
+    // Compare against the element's ACTUAL time, not the last value we tried
+    // to write. A dropped seek then simply re-attempts on the next frame
+    // instead of leaving the hero stuck on a stale frame.
+    const drifted = Math.abs(eased - video.currentTime) > EPSILON;
+    if (drifted) writeTime(eased);
+
+    // Keep going while there is distance left to close, or while the element
+    // still has not caught up to where it should be.
+    if (onScreen && (Math.abs(target - eased) > EPSILON || drifted)) schedule();
+  }
+
+  function schedule(){
+    if (rafId === null && ready) rafId = requestAnimationFrame(frame);
+  }
+
+  /* Jump straight to the scroll position's frame, skipping the easing.
+     Used when the hero leaves the viewport and when the page loads already
+     scrolled. Unlike the loop this forces the write even mid-seek, because
+     this value is final rather than one step of an animation — and it
+     re-applies once any in-flight seek lands, so it can't be overwritten. */
+  function snap(){
+    const p = progress();
+    eased = p * duration;
+    track.style.setProperty('--scrub', p.toFixed(4));
+    if (!writeTime(eased)){
+      // Not seekable yet (or mid-seek) — retry when that changes.
+      video.addEventListener('seeked',      () => writeTime(eased), { once:true });
+      video.addEventListener('canplaythrough', () => writeTime(eased), { once:true });
+    }
+  }
+
+  /* ---- Wiring ---------------------------------------------------------- */
+  function start(){
+    if (ready) return;
+    ready = true;
+    duration = video.duration;
+    startedAt = performance.now();
+    // Buffering events stop firing once the file is complete, so the
+    // seekability verdict also needs its own deadline.
+    setTimeout(checkSeekable, 2800);
+    measure();
+    track.classList.add('is-scrubbing');
+    video.classList.add('is-ready');
+    // Paint the frame that matches wherever the page is already scrolled
+    // (reloads restore scroll position, deep links land mid-page).
+    snap();
+  }
+
+  function fallback(keepFrame){
+    ready = false;
+    if (rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
+    track.classList.add('is-static');
+    track.classList.remove('is-scrubbing');
+    if (!keepFrame) video.classList.remove('is-ready');
+  }
+
+  /* A file can be fully downloaded and still refuse to seek: that happens when
+     it carries no seek index (exported without a faststart/moov-first pass) or
+     when the host does not answer HTTP range requests. Scrubbing is then
+     impossible — every write to currentTime is dropped — so rather than leave
+     a frozen first frame above three screens of dead scroll, fall back to a
+     normal hero and say why, loudly enough for whoever wires up the real file. */
+  let seekChecked = false;
+  function checkSeekable(){
+    if (!ready || seekChecked) return;
+    const sk  = video.seekable;
+    const span = sk.length ? sk.end(sk.length - 1) - sk.start(0) : 0;
+    if (span >= duration * 0.5){ seekChecked = true; return; }
+
+    const buf = video.buffered;
+    const bufEnd = buf.length ? buf.end(buf.length - 1) : 0;
+    if (bufEnd >= duration - 0.25 && performance.now() - startedAt > 2500){
+      seekChecked = true;
+      console.warn(
+        '[hero] hero.mp4 is fully buffered but not seekable, so scroll ' +
+        'scrubbing cannot run. Re-export it with a front-loaded index ' +
+        '(ffmpeg -movflags +faststart) and serve it from a host that ' +
+        'supports HTTP range requests. Falling back to a static hero.'
+      );
+      fallback(true);
+    }
+  }
+
+  // Reduced motion: no scrubbing. Show one representative frame, statically.
+  if (reduced){
+    video.addEventListener('loadeddata', () => {
+      try { video.currentTime = (video.duration || 0) * 0.4; } catch(e){}
+      video.classList.add('is-ready');
+    }, { once:true });
+    track.classList.add('is-static');
+    return;
+  }
+
+  video.addEventListener('loadedmetadata', () => {
+    if (!video.duration || !isFinite(video.duration)) { fallback(); return; }
+    // iOS will not decode a frame from a video that has never played.
+    // Priming it muted, then pausing immediately, makes seeking work there.
+    const primed = video.play();
+    if (primed && primed.then){
+      primed.then(() => { video.pause(); start(); }).catch(() => start());
+    } else {
+      video.pause(); start();
+    }
+  });
+
+  video.addEventListener('error', fallback);
+
+  // If hero.mp4 is missing entirely, no error may ever fire — time out.
+  const guard = setTimeout(() => { if (!ready) fallback(); }, LOAD_TIMEOUT);
+  video.addEventListener('loadedmetadata', () => clearTimeout(guard), { once:true });
+
+  // Passive listener: wakes the loop, touches no layout.
+  window.addEventListener('scroll', schedule, { passive:true });
+
+  // As more of the file arrives, previously-rejected seeks become possible.
+  // Waking the loop on these lets a hero that loaded slowly catch up by itself
+  // rather than sitting frozen on the first frame.
+  ['progress','canplay','canplaythrough','loadeddata','seeked'].forEach(ev => {
+    video.addEventListener(ev, () => { checkSeekable(); schedule(); });
+  });
+
+  window.addEventListener('resize', () => {
+    if (!ready) return;
+    measure();
+    schedule();
+  }, { passive:true });
+
+  // Only run while the hero is actually visible.
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(entries => {
+      onScreen = entries[0].isIntersecting;
+      if (onScreen){
+        schedule();
+      } else {
+        if (rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
+        // Parking the loop mid-ease would freeze the video on a half-way
+        // frame — scroll back up and the hero is showing the wrong moment.
+        // Snap to the boundary the hero was left at instead.
+        if (ready) snap();
+      }
+    }, { threshold: 0 }).observe(track);
+  } else {
+    onScreen = true;
+  }
+
+  // The video is already in the DOM with a src, so metadata may have landed
+  // before this ran.
+  if (video.readyState >= 1) video.dispatchEvent(new Event('loadedmetadata'));
+})();
 
 /* ==========================================================================
    DEMO FORM — validates in the browser, submits nowhere

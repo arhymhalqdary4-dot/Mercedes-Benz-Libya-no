@@ -61,10 +61,8 @@ treatments, which are latin-only conventions.
 1. **Logo.** `.logo` is a CSS reconstruction of the wordmark, not the real asset.
    Replace the contents of both `.logo` blocks (header and footer) with
    `<img src="decakila-logo.svg" alt="Decakila">`.
-2. **Hero video.** `<video id="hero-video">` has no `<source>` yet. Uncomment the
-   line inside it and point at your MP4 (H.264, muted, ~8–15 s). It fades in on
-   its own `playing` event; until then the branded gradient stands in, so there
-   is no broken state at any point.
+2. **Hero video.** Drop `hero.mp4` next to `index.html`. It has one hard
+   encoding requirement — see *Scroll-bound video scrubbing* below.
 3. **Products.** Four dummy cards. Model numbers, specs and the `data-cat`
    filter values are invented.
 4. **Contact details.** Phone, email, addresses and opening hours are structurally
@@ -73,6 +71,88 @@ treatments, which are latin-only conventions.
    Al Marj, Al Abyar, Al Bayda, Derna — but addresses and hours are not yet filled in.
 6. **Contact form.** Validates in the browser and shows a toast; it does not
    submit anywhere.
+
+## Scroll-bound video scrubbing
+
+The hero binds `hero.mp4`'s `currentTime` to scroll position, so the blender
+render advances frame-by-frame as you scroll down and reverses as you scroll up.
+
+### Structure
+
+```
+.hero-track      height: var(--hero-scroll)   ← supplies the scroll distance
+  └ .hero       position: sticky; top: 0     ← stays pinned while the page moves
+      ├ .hero__video    pinned behind, object-fit: cover
+      ├ .hero__scrim    keeps the copy legible over any frame
+      └ .container      the copy, z-index 3
+```
+
+`--hero-scroll` (default `300vh`) is the only knob for how long the scrub lasts:
+one viewport of pinning plus two of scrubbing. Raise it for a slower, more
+deliberate scrub; lower it to get through the clip faster.
+
+### How it stays smooth
+
+- The scroll listener is passive and does nothing but wake the rAF loop. All
+  reads and writes happen inside one frame callback, so scrolling never forces
+  a synchronous layout.
+- Layout metrics are measured once and re-measured only on resize — never per
+  frame.
+- The played time *eases* toward the scroll target rather than snapping to it.
+  That easing is what turns a jumpy seek into a glide, and it makes reverse
+  scrubbing feel identical to forward.
+- Seeks are skipped while a previous seek is in flight, so a fast flick queues
+  one seek instead of fighting the decoder for dozens.
+- The loop only runs while the hero is on screen, and parks itself as soon as
+  the eased time settles — measured at 0 rAF calls per second when idle.
+
+### The one hard requirement: the file must be seekable
+
+Scroll scrubbing is seeking, and a video can be *fully downloaded and still
+refuse to seek* if it carries no seek index. When that happens every write to
+`currentTime` is silently dropped and the hero freezes on frame one. Export with
+the index at the front:
+
+```bash
+ffmpeg -i source.mov -c:v libx264 -pix_fmt yuv420p \
+       -movflags +faststart -an hero.mp4
+```
+
+Also make sure the host answers HTTP range requests (almost all do; some
+naive static servers do not).
+
+Two further encoding notes:
+
+- **Keyframes.** Seeking lands on the nearest keyframe, so a clip with the
+  default one every ~250 frames will scrub in visible steps. Add `-g 10` or
+  lower for dense keyframes — it inflates the file, which is the trade you want
+  here. `-g 1` (all keyframes) is smoothest and largest.
+- **Size.** The whole clip must download before it can scrub cleanly. Keep it
+  short and modest in resolution; 1280×720 is plenty behind a scrim.
+
+The page detects the unseekable case: if the file finishes buffering and still
+cannot seek, it collapses to a normal one-screen hero and logs a console warning
+explaining the fix, rather than leaving a frozen frame above three screens of
+dead scroll.
+
+### Degradation
+
+| Situation | Behaviour |
+| --- | --- |
+| `hero.mp4` missing or errors | Track collapses to a normal hero over the gradient; no dead scroll |
+| File loads but is not seekable | Same collapse, plus a console warning naming the fix |
+| Still buffering | Seeks retry automatically as data arrives — it catches up on its own |
+| `prefers-reduced-motion` | No scrubbing; one representative frame, shown statically |
+| Hero scrolled past quickly | Snaps to the boundary frame instead of freezing mid-ease |
+
+### Bilingual
+
+Scrubbing is driven by vertical scroll, so it is direction-agnostic and works
+identically in both languages. Two details are handled explicitly: the video
+itself does **not** mirror in RTL (it is a product render, not an ornament,
+unlike the swoosh), and the scrim's directional wash flips to sit under the
+copy on whichever side it lands. Switching language mid-scrub keeps the current
+position.
 
 ## Accessibility and responsive notes
 
