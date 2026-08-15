@@ -4,7 +4,7 @@
  *
  *   index.html      everything inlined — one file, opens by double-click
  *   artifact.html   the same, as a body fragment for hosts with their own head
- *   local/          index.html + styles.css + products.js + assets/
+ *   local/          index.html + styles.css + products.js + copy.js + assets/
  *                   the split layout: index.html small enough to read, paste
  *                   and hand-edit; the catalogue and stylesheet sit beside it
  *
@@ -42,6 +42,13 @@ const source = readFileSync(join(root, "src/page.html"), "utf8");
 const data = JSON.stringify(
   JSON.parse(readFileSync(join(root, "data/products.json"), "utf8"))
 );
+/* src/copy.js assigns window.DECAKILA_COPY; the inlined build folds the object
+   literal straight into the page, the split build ships the file as-is. */
+const copySrc = readFileSync(join(root, "src/copy.js"), "utf8");
+const copyLiteral = copySrc
+  .slice(copySrc.indexOf("window.DECAKILA_COPY =") + "window.DECAKILA_COPY =".length)
+  .trim()
+  .replace(/;\s*$/, "");
 const dataUri = (file, mime) =>
   `data:${mime};base64,${readFileSync(join(root, file)).toString("base64")}`;
 
@@ -54,8 +61,11 @@ function render(mode) {
         ? `<style>${css}</style>`
         : `<link rel="stylesheet" href="styles.css" />`)
     .replace("{{DATA_TAG}}", () =>
-      inline ? "" : `<script src="products.js"></script>`)
+      inline ? "" : `<script src="products.js"></script>\n`)
+    .replace("{{COPY_TAG}}", () =>
+      inline ? "" : `<script src="copy.js"></script>`)
     .replace("{{DATA}}", () => (inline ? data : "window.DECAKILA_DATA"))
+    .replace("{{COPY}}", () => (inline ? copyLiteral : "window.DECAKILA_COPY"))
     .replaceAll("{{LOGO_BLOCK}}", () =>
       inline ? dataUri("assets/logo.png", "image/png") : "assets/logo.png")
     .replaceAll("{{LOGO_WHITE}}", () =>
@@ -95,6 +105,7 @@ mkdirSync(join(local, "images"), { recursive: true });
 const localPage = document_(render("split"));
 writeFileSync(join(local, "index.html"), localPage);
 writeFileSync(join(local, "styles.css"), css);
+copyFileSync(join(root, "src/copy.js"), join(local, "copy.js"));
 writeFileSync(
   join(local, "products.js"),
   `/* Decakila catalogue — generated from the price-list PDF by\n   tools/extract-catalogue.py. Loaded before index.html's script. */\nwindow.DECAKILA_DATA = ${data};\n`
@@ -115,4 +126,4 @@ const kb = (n) => (n / 1024).toFixed(0) + " KB";
 console.log(`· css   ${kb(css.length)}`);
 console.log(`· data  ${kb(data.length)} · ${JSON.parse(data).items.length} products`);
 console.log(`· wrote index.html + artifact.html (${kb(page.length)})`);
-console.log(`· wrote local/index.html (${kb(localPage.length)}) + styles.css + products.js`);
+console.log(`· wrote local/index.html (${kb(localPage.length)}) + styles.css + products.js + copy.js`);

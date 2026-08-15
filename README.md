@@ -19,7 +19,8 @@ npm run build   # → index.html + artifact.html
 
 | Path                 | What it is                                                    |
 | -------------------- | ------------------------------------------------------------- |
-| `src/page.html`      | Markup, copy (both languages) and application script          |
+| `src/page.html`      | Markup and application script                                 |
+| `src/copy.js`        | Every interface string, English and Arabic                    |
 | `src/theme.css`      | Tailwind entry: brand tokens, both themes, the curve motif    |
 | `data/products.json` | 625 catalogue products extracted from the Decakila price list |
 | `assets/`            | Logo, and the white wordmark derived from it                  |
@@ -31,11 +32,11 @@ The build produces the same site in three shapes:
   double-clicking. Nothing else needed.
 - **`artifact.html`** — the same page as a body fragment, for hosts that supply
   their own `<head>`.
-- **`local/`** — the split layout: `index.html` (58 KB) beside `styles.css`,
-  `products.js` and `assets/`. Use this one if you want to read or hand-edit the
-  page; the catalogue and the stylesheet stay out of your way. `products.js`
-  loads as a classic script rather than `fetch()`, so it still works from
-  `file://` with no server.
+- **`local/`** — the split layout: `index.html` (40 KB) beside `styles.css`,
+  `products.js`, `copy.js` and `assets/`. Use this one to read or hand-edit the
+  page — the catalogue, the stylesheet and the translations stay out of your
+  way. Both side scripts load as classic `<script>` tags rather than `fetch()`,
+  so the split layout still runs from `file://` with no server.
 
 Both layouts render identically. Pick one — don't mix files between them.
 
@@ -69,9 +70,10 @@ The globe button in the navbar switches the whole interface between English
 the curve motif and chevrons. The choice is remembered between visits, and a
 first-time visitor on an Arabic browser lands in Arabic.
 
-All copy lives in the `T` object at the top of the script — `T.en` and `T.ar`
-share one set of keys. Add a string to both and tag the element with
-`data-i18n="key"`, or read it in a view with `t("key")`.
+All copy lives in `src/copy.js` (`local/copy.js` in the split layout) — `T.en`
+and `T.ar` share one set of keys. Add a string to both and tag the element with
+`data-i18n="key"`, or read it in a view with `t("key")`. Nothing else needs
+touching to change wording, so a translator can work in that one file.
 
 ## Design
 
