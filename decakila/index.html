@@ -311,7 +311,15 @@ html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78r
    scrolls past. Scroll progress through the track drives video.currentTime.
    --hero-scroll is the ONLY knob for how long the scrub lasts.
    ========================================================================== */
-:root{ --hero-scroll: 300vh; }      /* 100vh pinned + 200vh of scrubbing */
+:root{
+  --hero-scroll: 400vh;             /* 100vh pinned + 300vh of scrubbing */
+  /* Carries all hero-copy contrast now that nothing tints the footage. */
+  --hero-shadow:
+    0 0 3px rgba(0,0,0,.62),
+    0 1px 3px rgba(0,0,0,.66),
+    0 2px 10px rgba(0,0,0,.45),
+    0 6px 28px rgba(0,0,0,.32);
+}
 
 .hero-track{
   position:relative;
@@ -351,21 +359,12 @@ html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78r
   pointer-events:none;                /* scroll passes straight through */
   will-change:opacity;
 }
-.hero__video.is-ready{ opacity:.55; }
+/* Full opacity and no overlay above it — the render shows in its own colours. */
+.hero__video.is-ready{ opacity:1; }
 
 /* The video is a product render, not a mirror image — it must NOT flip in RTL
    the way the swoosh does. Stated explicitly so nothing inherits a flip. */
 html[dir="rtl"] .hero__video{ transform:none; }
-
-/* Readability: a fixed scrim plus a directional wash under the copy, so the
-   text holds contrast against whatever frame happens to be on screen. */
-.hero__scrim{
-  position:absolute; inset:0; z-index:1;
-  background:
-    linear-gradient(to bottom, rgba(70,2,6,.50) 0%, rgba(70,2,6,.20) 42%, rgba(70,2,6,.62) 100%),
-    linear-gradient(to var(--scrim-dir, right), rgba(70,2,6,.62) 0%, rgba(70,2,6,.22) 55%, transparent 85%);
-}
-html[dir="rtl"] .hero__scrim{ --scrim-dir: left; }
 
 /* Scrub progress — a thin brand-red rule that fills as the video advances */
 .hero__progress{
@@ -379,22 +378,6 @@ html[dir="rtl"] .hero__progress{ transform-origin:right; }
 .hero-track.is-scrubbing .hero__progress{ opacity:.85; }
 .hero-track.is-static .hero__progress{ display:none; }
 
-/* Scroll cue — teaches the interaction, then gets out of the way */
-.hero__cue{
-  /* Must clear the white swoosh (max 104px tall) — white-on-white otherwise. */
-  position:absolute; inset-block-end:clamp(96px,9vw,132px);
-  inset-inline-end:clamp(20px,5vw,32px); z-index:4;
-  display:flex; align-items:center; gap:10px;
-  color:rgba(255,255,255,.9); font-size:.8rem; font-weight:600; letter-spacing:.08em;
-  text-transform:uppercase;
-  opacity:calc(1 - var(--scrub, 0) * 3);   /* gone by a third of the way in */
-  transition:opacity 200ms linear;
-  pointer-events:none;
-}
-html[lang="ar"] .hero__cue{ letter-spacing:0; text-transform:none; font-size:.88rem; }
-.hero__cue svg{ width:16px; height:16px; animation:cueBob 1.8s var(--ease) infinite; }
-@keyframes cueBob{ 0%,100%{ transform:translateY(-2px); } 50%{ transform:translateY(3px); } }
-.hero-track.is-static .hero__cue{ display:none; }
 /* Header is fixed and translucent, so the pinned video runs behind it; the
    copy is padded clear of it instead of the section being pushed down. */
 .hero .container{
@@ -403,11 +386,18 @@ html[lang="ar"] .hero__cue{ letter-spacing:0; text-transform:none; font-size:.88
 }
 .hero__inner{ max-width:830px; color:#fff; }
 
+/* With no scrim over the footage, every piece of hero copy carries its own
+   contrast. The shadow is layered rather than single: a tight dark edge for
+   legibility against detail, a wider soft halo to lift the text off bright
+   frames. It reads as a subtle depth cue, not an outline. */
+.hero__eyebrow, .hero__slogan, .hero__text,
+.hero__inner .stat__num, .hero__inner .stat__label{ text-shadow:var(--hero-shadow); }
+
 .hero__eyebrow{
   display:inline-flex; align-items:center; gap:10px;
   padding:8px 18px 8px 10px; margin-bottom:24px;
-  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
-  border-radius:var(--r-pill); backdrop-filter:blur(6px);
+  background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.35);
+  border-radius:var(--r-pill); backdrop-filter:blur(8px);
   font-size:.82rem; font-weight:600; letter-spacing:.02em;
 }
 html[dir="rtl"] .hero__eyebrow{ padding:8px 10px 8px 18px; }
@@ -417,7 +407,11 @@ html[dir="rtl"] .hero__eyebrow{ padding:8px 10px 8px 18px; }
 }
 .hero__title{
   font-size:clamp(2.3rem, 6.4vw, 4.1rem); font-weight:800; color:#fff;
-  text-shadow:0 2px 24px rgba(90,2,8,.35);
+  text-shadow:
+    0 0 4px rgba(0,0,0,.62),
+    0 2px 4px rgba(0,0,0,.66),
+    0 4px 16px rgba(0,0,0,.45),
+    0 8px 40px rgba(0,0,0,.32);
 }
 .hero__title span{ display:block; }
 .hero__slogan{
@@ -439,7 +433,7 @@ html[lang="ar"] .hero__slogan{ letter-spacing:0; text-transform:none; font-size:
 .hero__stats{
   display:flex; flex-wrap:wrap; gap:clamp(20px,5vw,56px);
   margin-top:clamp(40px,6vw,60px);
-  padding-top:28px; border-top:1px solid rgba(255,255,255,.25);
+  padding-top:28px; border-top:1px solid rgba(255,255,255,.4);
 }
 .stat__num{ font-size:clamp(1.7rem,3.4vw,2.3rem); font-weight:800; color:#fff; line-height:1; }
 .stat__label{ margin-top:8px; font-size:.85rem; color:rgba(255,255,255,.82); font-weight:500; }
@@ -860,8 +854,6 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
          muted preload="auto" playsinline
          disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
 
-  <div class="hero__scrim"></div>
-
   <div class="container">
     <div class="hero__inner">
       <span class="hero__eyebrow"><span class="dot"></span><span data-i18n="heroBadge">Authorized Distributor in Libya</span></span>
@@ -893,12 +885,6 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
         <div class="stat"><div class="stat__num">100%</div><div class="stat__label" data-i18n="statGenuine">Genuine spare parts</div></div>
       </div>
     </div>
-  </div>
-
-  <!-- Scroll cue — fades out once the scrub is underway -->
-  <div class="hero__cue" aria-hidden="true">
-    <span data-i18n="scrollCue">Scroll</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
   </div>
 
   <!-- BRAND SWOOSH — the logo's S-curve as a section divider -->
@@ -1393,7 +1379,7 @@ const T = {
     heroTitle1:"Appliances that make", heroTitle2:"every home easier.",
     slogan:"Making Fun Life Easier",
     heroText:"Decakila kitchen and home appliances, officially distributed across Libya — backed by local warranty, genuine spare parts and seven branches ready to serve you.",
-    ctaProducts:"Explore Products", ctaBranch:"Find a Branch", scrollCue:"Scroll",
+    ctaProducts:"Explore Products", ctaBranch:"Find a Branch",
     statBranches:"Branches nationwide", statProducts:"Products in range",
     statWarranty:"Months local warranty", statGenuine:"Genuine spare parts",
 
@@ -1472,7 +1458,7 @@ const T = {
     heroTitle1:"أجهزة تجعل", heroTitle2:"كل بيت أسهل.",
     slogan:"حياة أسهل وأكثر متعة",
     heroText:"أجهزة ديكاكيلا للمطبخ والمنزل، موزّعة رسمياً في كل ليبيا — بضمان محلي وقطع غيار أصلية وسبعة فروع في خدمتكم.",
-    ctaProducts:"تصفّح المنتجات", ctaBranch:"أقرب فرع إليك", scrollCue:"مرّر للأسفل",
+    ctaProducts:"تصفّح المنتجات", ctaBranch:"أقرب فرع إليك",
     statBranches:"فروع في ليبيا", statProducts:"منتج في التشكيلة",
     statWarranty:"شهراً ضمان محلي", statGenuine:"قطع غيار أصلية",
 

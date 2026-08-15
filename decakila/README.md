@@ -82,14 +82,19 @@ render advances frame-by-frame as you scroll down and reverses as you scroll up.
 ```
 .hero-track      height: var(--hero-scroll)   ← supplies the scroll distance
   └ .hero       position: sticky; top: 0     ← stays pinned while the page moves
-      ├ .hero__video    pinned behind, object-fit: cover
-      ├ .hero__scrim    keeps the copy legible over any frame
+      ├ .hero__video    pinned behind, object-fit: cover, full opacity
       └ .container      the copy, z-index 3
 ```
 
-`--hero-scroll` (default `300vh`) is the only knob for how long the scrub lasts:
-one viewport of pinning plus two of scrubbing. Raise it for a slower, more
+`--hero-scroll` (default `400vh`) is the only knob for how long the scrub lasts:
+one viewport of pinning plus three of scrubbing. Raise it for a slower, more
 deliberate scrub; lower it to get through the clip faster.
+
+Because the hero is pinned for the whole track, the page cannot move past it
+until the scrub is finished — normal scrolling resumes exactly when the video
+reaches its last frame. That falls out of the sticky layout; no scroll
+hijacking, no wheel interception, so trackpads, keyboards, scrollbars and
+browser find-in-page all behave normally.
 
 ### How it stays smooth
 
@@ -128,7 +133,7 @@ Two further encoding notes:
   lower for dense keyframes — it inflates the file, which is the trade you want
   here. `-g 1` (all keyframes) is smoothest and largest.
 - **Size.** The whole clip must download before it can scrub cleanly. Keep it
-  short and modest in resolution; 1280×720 is plenty behind a scrim.
+  short and modest in resolution; 1280×720 is plenty at hero scale.
 
 The page detects the unseekable case: if the file finishes buffering and still
 cannot seek, it collapses to a normal one-screen hero and logs a console warning
@@ -145,14 +150,31 @@ dead scroll.
 | `prefers-reduced-motion` | No scrubbing; one representative frame, shown statically |
 | Hero scrolled past quickly | Snaps to the boundary frame instead of freezing mid-ease |
 
+### Readability without an overlay
+
+Nothing is layered over the footage — the render plays at full opacity in its
+own colours. All hero-copy contrast therefore comes from `--hero-shadow`, a
+layered `text-shadow`: a tight halo hugging the glyph edges, a short offset
+shadow, and a wide soft one. The tight halo does most of the work, because
+contrast is judged against the pixels immediately around a letterform rather
+than the average of the whole block.
+
+Measured on composited pixels in the shadowed reading zone, across four scrub
+positions, against a fully saturated frame: **5.64:1 worst case in English,
+4.64:1 in Arabic** (4.5:1 required). Arabic runs lower because Cairo's strokes
+are lighter than Poppins', leaving more backdrop inside the reading zone.
+
+Those margins are thin, and they were measured against a stand-in clip. If the
+real `hero.mp4` is bright or busy where the copy sits, check it and either
+deepen `--hero-shadow` or darken that region of the footage in the edit — that
+keeps the video's own colours intact, which a CSS overlay would not.
+
 ### Bilingual
 
 Scrubbing is driven by vertical scroll, so it is direction-agnostic and works
-identically in both languages. Two details are handled explicitly: the video
-itself does **not** mirror in RTL (it is a product render, not an ornament,
-unlike the swoosh), and the scrim's directional wash flips to sit under the
-copy on whichever side it lands. Switching language mid-scrub keeps the current
-position.
+identically in both languages. One detail is handled explicitly: the video does
+**not** mirror in RTL (it is a product render, not an ornament, unlike the
+swoosh). Switching language mid-scrub keeps the current position.
 
 ## Accessibility and responsive notes
 
