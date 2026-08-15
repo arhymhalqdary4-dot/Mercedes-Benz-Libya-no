@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decakila Libya — Making Fun Life Easier</title>
+<meta name="description" content="Decakila Libya — the authorized distributor of Decakila kitchen and home appliances in Libya. Branches in Benghazi, Tripoli, Misrata, Al Marj, Al Abyar, Al Bayda and Derna.">
+
+<!-- Poppins for English (LTR) · Cairo + Tajawal for Arabic (RTL) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   1. DESIGN TOKENS
+   The single source of truth. Swap --brand-red here if you have the exact
+   Pantone/hex from the official Decakila brand sheet — everything follows.
+   ========================================================================== */
+:root{
+  /* Brand */
+  --brand-red:        #E30613;   /* Decakila signal red */
+  --brand-red-dark:   #B4040F;
+  --brand-red-deep:   #8C030B;
+  --brand-red-tint:   #FDECEE;
+  --brand-red-tint-2: #FBD9DC;
+
+  /* Neutrals — clean appliance-brand greys */
+  --white:  #FFFFFF;
+  --grey-50:#FAFAFB;
+  --grey-100:#F3F4F6;
+  --grey-200:#E7E9EE;
+  --grey-300:#D3D7DF;
+  --grey-500:#8A909D;
+  --grey-700:#4A5060;
+  --grey-900:#171A21;
+
+  /* Semantic */
+  --bg:            var(--white);
+  --bg-alt:        var(--grey-50);
+  --text:          var(--grey-900);
+  --text-muted:    var(--grey-700);
+  --text-subtle:   var(--grey-500);
+  --line:          var(--grey-200);
+  --surface:       var(--white);
+
+  /* Type */
+  --font-en: 'Poppins', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+  --font-ar: 'Cairo', 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+  --font: var(--font-en);
+
+  /* Spacing scale (marketing page = generous) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --space-5: 64px;
+  --space-6: 96px;
+
+  /* Radii + elevation */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(23,26,33,.06), 0 2px 8px rgba(23,26,33,.05);
+  --shadow-md: 0 8px 24px rgba(23,26,33,.08);
+  --shadow-lg: 0 18px 48px rgba(23,26,33,.13);
+  --shadow-red: 0 10px 30px rgba(227,6,19,.28);
+
+  /* Motion — 150-300ms, meaningful only */
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --t-fast: 160ms;
+  --t: 240ms;
+
+  --container: 1200px;
+  --header-h: 78px;
+}
+
+/* Arabic swaps the type stack only — colour, spacing and layout are shared. */
+html[lang="ar"]{ --font: var(--font-ar); }
+
+/* ==========================================================================
+   2. RESET & BASE
+   ========================================================================== */
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; scroll-padding-top: calc(var(--header-h) + 16px); -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  font-family:var(--font);
+  font-size:16px;                 /* never below 16px for body */
+  line-height:1.65;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;              /* swooshes bleed past the edge by design */
+}
+html[lang="ar"] body{ line-height:1.85; }   /* Arabic needs more leading */
+img,svg,video{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font:inherit; color:inherit; }
+h1,h2,h3,h4{ margin:0; line-height:1.15; font-weight:700; letter-spacing:-.02em; }
+html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3, html[lang="ar"] h4{
+  letter-spacing:0; line-height:1.35;       /* Arabic must not be tracked-in */
+}
+p{ margin:0; }
+ul{ margin:0; padding:0; list-style:none; }
+
+/* Visible, branded focus ring — never removed */
+:focus-visible{
+  outline:3px solid var(--brand-red);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+.skip-link{
+  position:absolute; inset-inline-start:-9999px; top:8px; z-index:2000;
+  background:var(--brand-red); color:#fff; padding:12px 20px; border-radius:var(--r-sm);
+}
+.skip-link:focus{ inset-inline-start:12px; }
+
+/* ==========================================================================
+   3. LAYOUT PRIMITIVES
+   ========================================================================== */
+.container{
+  width:100%;
+  max-width:var(--container);
+  margin-inline:auto;
+  padding-inline:clamp(20px, 5vw, 32px);
+}
+.section{ padding-block: clamp(56px, 8vw, var(--space-6)); position:relative; }
+.section--alt{ background:var(--bg-alt); }
+.section--tight{ padding-block: clamp(40px, 6vw, 72px); }
+
+.section-head{ max-width:680px; margin-bottom: clamp(32px, 5vw, 56px); }
+.section-head--center{ margin-inline:auto; text-align:center; }
+
+.eyebrow{
+  display:inline-flex; align-items:center; gap:10px;
+  font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--brand-red); margin-bottom:14px;
+}
+html[lang="ar"] .eyebrow{ letter-spacing:0; font-size:.85rem; text-transform:none; }
+.eyebrow::before{
+  content:""; width:26px; height:3px; border-radius:2px; background:var(--brand-red);
+}
+
+.section-title{ font-size:clamp(1.9rem, 4.2vw, 2.9rem); }
+.section-title em{ color:var(--brand-red); font-style:normal; }
+.section-sub{ margin-top:16px; color:var(--text-muted); font-size:clamp(1rem,1.6vw,1.09rem); }
+
+/* ==========================================================================
+   4. BUTTONS  (min target 44x44, always animated feedback)
+   ========================================================================== */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  min-height:48px; padding:0 26px;
+  border:2px solid transparent; border-radius:var(--r-pill);
+  font-weight:600; font-size:.98rem; cursor:pointer;
+  transition: transform var(--t-fast) var(--ease), background-color var(--t) var(--ease),
+              color var(--t) var(--ease), box-shadow var(--t) var(--ease), border-color var(--t) var(--ease);
+  white-space:nowrap;
+}
+.btn svg{ width:18px; height:18px; flex:none; }
+/* Arrow glyphs point with the reading direction */
+html[dir="rtl"] .btn .i-arrow{ transform:scaleX(-1); }
+
+.btn--primary{ background:var(--brand-red); color:#fff; box-shadow:var(--shadow-red); }
+.btn--primary:hover{ background:var(--brand-red-dark); transform:translateY(-2px); }
+.btn--primary:active{ transform:translateY(0); }
+
+.btn--ghost{ background:transparent; color:var(--text); border-color:var(--grey-300); }
+.btn--ghost:hover{ border-color:var(--brand-red); color:var(--brand-red); transform:translateY(-2px); }
+
+.btn--onred{ background:#fff; color:var(--brand-red); }
+.btn--onred:hover{ background:var(--grey-100); transform:translateY(-2px); }
+
+.btn--outline-light{ background:transparent; color:#fff; border-color:rgba(255,255,255,.55); }
+.btn--outline-light:hover{ background:rgba(255,255,255,.14); border-color:#fff; transform:translateY(-2px); }
+
+.btn--sm{ min-height:44px; padding:0 20px; font-size:.9rem; }
+
+/* ==========================================================================
+   5. THE SWOOSH  — the brand's S-curve, reused as a structural divider.
+   Mirrors itself in RTL so the curve always sweeps with the reading direction.
+   ========================================================================== */
+.swoosh{
+  position:absolute; inset-inline:0; line-height:0; pointer-events:none; z-index:2;
+}
+.swoosh svg{ width:100%; height:clamp(48px, 7vw, 104px); display:block; }
+html[dir="rtl"] .swoosh svg{ transform:scaleX(-1); }
+.swoosh--bottom{ bottom:-1px; }
+.swoosh--top{ top:-1px; }
+.swoosh--flip svg{ transform:scaleY(-1); }
+html[dir="rtl"] .swoosh--flip svg{ transform:scale(-1,-1); }
+
+/* ==========================================================================
+   6. LOGO
+   Placeholder built from the brand shape + wordmark. To drop in the real
+   asset, replace the contents of .logo with <img src="decakila-logo.svg">.
+   ========================================================================== */
+.logo{ display:inline-flex; align-items:center; gap:12px; }
+.logo-mark{
+  position:relative; display:block;
+  background:var(--brand-red);
+  border-radius:6px 6px 4px 4px;
+  padding:9px 16px 16px;
+  overflow:hidden;
+  box-shadow:0 6px 18px rgba(227,6,19,.25);
+}
+.logo-mark::after{           /* the S-curve carved out of the bottom edge */
+  content:"";
+  position:absolute; inset-inline:-6%; bottom:-9px; height:20px;
+  background:var(--surface);
+  border-radius:60% 60% 0 0 / 100% 100% 0 0;
+  transform:rotate(-2.2deg);
+}
+html[dir="rtl"] .logo-mark::after{ transform:rotate(2.2deg); }
+.logo-word{
+  font-family:var(--font-en);       /* wordmark stays latin in both languages */
+  font-weight:600; font-size:1.32rem; letter-spacing:-.045em;
+  color:#fff; line-height:1; display:block;
+}
+.logo-slogan{
+  font-family:var(--font-en);
+  font-size:.44rem; letter-spacing:.16em; font-weight:500;
+  color:rgba(255,255,255,.92); text-transform:uppercase;
+  margin-top:5px; display:block; text-align:center;
+}
+.logo-tag{
+  font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-subtle); line-height:1.3; max-width:88px;
+}
+html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78rem; }
+.logo--footer .logo-mark{ background:#fff; box-shadow:none; }
+.logo--footer .logo-mark::after{ background:var(--grey-900); }
+.logo--footer .logo-word,
+.logo--footer .logo-slogan{ color:var(--brand-red); }
+
+/* ==========================================================================
+   7. HEADER / NAV
+   ========================================================================== */
+.header{
+  position:fixed; inset-block-start:0; inset-inline:0; z-index:1000;
+  height:var(--header-h);
+  background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid transparent;
+  transition:box-shadow var(--t) var(--ease), border-color var(--t) var(--ease), background-color var(--t) var(--ease);
+}
+.header.is-scrolled{ box-shadow:var(--shadow-sm); border-bottom-color:var(--line); background:rgba(255,255,255,.95); }
+.header__inner{ height:100%; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+
+.nav{ display:flex; align-items:center; gap:4px; }
+.nav a{
+  position:relative; padding:10px 16px; border-radius:var(--r-sm);
+  font-weight:500; font-size:.96rem; color:var(--text-muted);
+  transition:color var(--t) var(--ease), background-color var(--t) var(--ease);
+}
+.nav a::after{
+  content:""; position:absolute; inset-inline:16px; bottom:4px; height:2px;
+  background:var(--brand-red); border-radius:2px;
+  transform:scaleX(0); transform-origin:center;
+  transition:transform var(--t) var(--ease);
+}
+.nav a:hover{ color:var(--text); }
+.nav a:hover::after,
+.nav a.is-active::after{ transform:scaleX(1); }
+.nav a.is-active{ color:var(--brand-red); font-weight:600; }
+
+.header__actions{ display:flex; align-items:center; gap:10px; }
+
+/* Language switcher — a two-state segmented control */
+.lang{
+  display:inline-flex; align-items:center; padding:4px;
+  background:var(--grey-100); border:1px solid var(--line);
+  border-radius:var(--r-pill); position:relative; min-height:44px;
+}
+.lang__btn{
+  border:0; background:transparent; cursor:pointer;
+  min-width:46px; min-height:36px; padding:0 12px;
+  border-radius:var(--r-pill);
+  font-weight:700; font-size:.82rem; letter-spacing:.04em;
+  color:var(--text-subtle);
+  transition:color var(--t) var(--ease), background-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.lang__btn[aria-pressed="true"]{
+  background:var(--brand-red); color:#fff; box-shadow:0 2px 8px rgba(227,6,19,.35);
+}
+.lang__btn:not([aria-pressed="true"]):hover{ color:var(--text); }
+.lang__btn--ar{ font-family:var(--font-ar); }
+
+.burger{
+  display:none; width:46px; height:46px; border:1px solid var(--line);
+  background:var(--white); border-radius:var(--r-sm); cursor:pointer;
+  align-items:center; justify-content:center; flex-direction:column; gap:5px;
+}
+.burger span{
+  display:block; width:19px; height:2px; background:var(--text); border-radius:2px;
+  transition:transform var(--t) var(--ease), opacity var(--t-fast) var(--ease);
+}
+.burger[aria-expanded="true"] span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2){ opacity:0; }
+.burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+/* ==========================================================================
+   8. HERO
+   ========================================================================== */
+.hero{
+  position:relative;
+  min-height:min(92vh, 820px);
+  margin-top:var(--header-h);
+  display:flex; align-items:center;
+  background:linear-gradient(135deg, var(--brand-red-deep) 0%, var(--brand-red) 55%, #F5333F 100%);
+  overflow:hidden;
+  isolation:isolate;
+}
+/* Ambient fallback that shows until a real video is wired up */
+.hero__ambient{
+  position:absolute; inset:0; z-index:0; opacity:.5;
+  background:
+    radial-gradient(60% 60% at 78% 18%, rgba(255,255,255,.30) 0%, transparent 60%),
+    radial-gradient(45% 45% at 12% 82%, rgba(0,0,0,.35) 0%, transparent 65%);
+}
+.hero__video{
+  position:absolute; inset:0; z-index:0;
+  width:100%; height:100%; object-fit:cover;
+  opacity:0;                       /* JS fades it in once it actually plays */
+  transition:opacity 600ms var(--ease);
+}
+.hero__video.is-ready{ opacity:.42; }
+.hero__scrim{
+  position:absolute; inset:0; z-index:1;
+  background:linear-gradient(to bottom, rgba(90,2,8,.42) 0%, rgba(90,2,8,.12) 45%, rgba(90,2,8,.55) 100%);
+}
+.hero .container{ position:relative; z-index:3; padding-block: clamp(90px,12vw,120px); }
+.hero__inner{ max-width:830px; color:#fff; }
+
+.hero__eyebrow{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:8px 18px 8px 10px; margin-bottom:24px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
+  border-radius:var(--r-pill); backdrop-filter:blur(6px);
+  font-size:.82rem; font-weight:600; letter-spacing:.02em;
+}
+html[dir="rtl"] .hero__eyebrow{ padding:8px 10px 8px 18px; }
+.hero__eyebrow .dot{
+  width:9px; height:9px; border-radius:50%; background:#fff; flex:none;
+  box-shadow:0 0 0 4px rgba(255,255,255,.22);
+}
+.hero__title{
+  font-size:clamp(2.3rem, 6.4vw, 4.1rem); font-weight:800; color:#fff;
+  text-shadow:0 2px 24px rgba(90,2,8,.35);
+}
+.hero__title span{ display:block; }
+.hero__slogan{
+  margin-top:20px;
+  font-size:clamp(1rem, 2.2vw, 1.3rem); font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.95);
+}
+html[lang="ar"] .hero__slogan{ letter-spacing:0; text-transform:none; font-size:clamp(1.15rem,2.6vw,1.5rem); }
+.hero__slogan::after{
+  content:""; display:block; width:64px; height:3px; border-radius:2px;
+  background:#fff; margin-top:16px; opacity:.85;
+}
+.hero__text{
+  margin-top:22px; max-width:56ch;
+  font-size:clamp(1rem,1.7vw,1.13rem); color:rgba(255,255,255,.92);
+}
+.hero__cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; }
+
+.hero__stats{
+  display:flex; flex-wrap:wrap; gap:clamp(20px,5vw,56px);
+  margin-top:clamp(40px,6vw,60px);
+  padding-top:28px; border-top:1px solid rgba(255,255,255,.25);
+}
+.stat__num{ font-size:clamp(1.7rem,3.4vw,2.3rem); font-weight:800; color:#fff; line-height:1; }
+.stat__label{ margin-top:8px; font-size:.85rem; color:rgba(255,255,255,.82); font-weight:500; }
+
+/* ==========================================================================
+   9. TRUST STRIP
+   ========================================================================== */
+.trust{ background:var(--white); padding-block:clamp(28px,4vw,40px); border-bottom:1px solid var(--line); }
+.trust__grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:clamp(16px,3vw,28px);
+}
+.trust__item{ display:flex; align-items:center; gap:14px; }
+.trust__icon{
+  width:44px; height:44px; flex:none; display:grid; place-items:center;
+  border-radius:12px; background:var(--brand-red-tint); color:var(--brand-red);
+}
+.trust__icon svg{ width:22px; height:22px; }
+.trust__label{ font-weight:600; font-size:.95rem; }
+.trust__meta{ font-size:.83rem; color:var(--text-subtle); }
+
+/* ==========================================================================
+   10. PRODUCTS
+   ========================================================================== */
+.products__head{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:24px; flex-wrap:wrap; margin-bottom:clamp(28px,4vw,44px);
+}
+.products__head .section-head{ margin-bottom:0; }
+
+.filters{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:clamp(24px,3.5vw,36px); }
+.chip{
+  min-height:44px; padding:0 20px; border-radius:var(--r-pill); cursor:pointer;
+  border:1px solid var(--line); background:var(--white); color:var(--text-muted);
+  font-weight:500; font-size:.92rem;
+  transition:all var(--t) var(--ease);
+}
+.chip:hover{ border-color:var(--brand-red); color:var(--brand-red); }
+.chip.is-active{ background:var(--brand-red); border-color:var(--brand-red); color:#fff; }
+
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:clamp(18px,2.5vw,28px);
+}
+.card{
+  position:relative; display:flex; flex-direction:column;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+  overflow:hidden;
+  transition:transform var(--t) var(--ease), box-shadow var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-lg); border-color:transparent; }
+.card__media{
+  position:relative; aspect-ratio:4/3;      /* reserved space — no layout shift */
+  display:grid; place-items:center;
+  background:linear-gradient(160deg, var(--grey-100) 0%, var(--white) 60%, var(--brand-red-tint) 100%);
+  color:var(--brand-red);
+  overflow:hidden;
+}
+.card__media svg{ width:52%; height:auto; transition:transform 400ms var(--ease); }
+.card:hover .card__media svg{ transform:scale(1.06); }
+.card__media::after{                        /* mini swoosh at the base of the image well */
+  content:""; position:absolute; inset-inline:-4%; bottom:-14px; height:32px;
+  background:var(--surface); border-radius:56% 56% 0 0 / 100% 100% 0 0;
+}
+.badge{
+  position:absolute; inset-block-start:14px; inset-inline-start:14px; z-index:2;
+  padding:6px 13px; border-radius:var(--r-pill);
+  background:var(--brand-red); color:#fff; font-size:.72rem; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase;
+}
+html[lang="ar"] .badge{ letter-spacing:0; text-transform:none; font-size:.78rem; }
+.badge--dark{ background:var(--grey-900); }
+
+.card__body{ padding:22px 22px 24px; display:flex; flex-direction:column; flex:1; }
+.card__cat{
+  font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--brand-red); margin-bottom:8px;
+}
+html[lang="ar"] .card__cat{ letter-spacing:0; text-transform:none; font-size:.82rem; }
+.card__title{ font-size:1.12rem; font-weight:700; }
+.card__desc{ margin-top:10px; font-size:.92rem; color:var(--text-muted); flex:1; }
+.card__specs{ display:flex; flex-wrap:wrap; gap:6px; margin-top:16px; }
+.card__specs li{
+  font-size:.76rem; font-weight:600; color:var(--text-muted);
+  background:var(--grey-100); border-radius:var(--r-pill); padding:5px 11px;
+}
+.card__foot{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin-top:20px; padding-top:16px; border-top:1px solid var(--line);
+}
+.card__model{ font-size:.8rem; color:var(--text-subtle); font-weight:500; }
+.card__link{
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:44px; font-weight:600; font-size:.88rem; color:var(--brand-red);
+}
+.card__link svg{ width:15px; height:15px; transition:transform var(--t) var(--ease); }
+.card:hover .card__link svg{ transform:translateX(4px); }
+html[dir="rtl"] .card__link svg{ transform:scaleX(-1); }
+html[dir="rtl"] .card:hover .card__link svg{ transform:scaleX(-1) translateX(4px); }
+
+.products__foot{ margin-top:clamp(32px,4vw,48px); text-align:center; }
+
+/* ==========================================================================
+   11. ABOUT
+   ========================================================================== */
+.about__grid{
+  display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(32px,5vw,72px); align-items:center;
+}
+.about__visual{ position:relative; }
+.about__panel{
+  position:relative; aspect-ratio:4/3.4; border-radius:var(--r-xl); overflow:hidden;
+  background:linear-gradient(150deg, var(--brand-red) 0%, var(--brand-red-dark) 60%, var(--brand-red-deep) 100%);
+  box-shadow:var(--shadow-lg);
+  display:grid; place-items:center;
+}
+.about__panel svg.kitchen{ width:74%; color:rgba(255,255,255,.9); }
+.about__panel::after{                 /* the swoosh, again, as a masthead edge */
+  content:""; position:absolute; inset-inline:-6%; bottom:-24px; height:70px;
+  background:var(--bg-alt); border-radius:58% 58% 0 0 / 100% 100% 0 0;
+}
+.about__stamp{
+  position:absolute; inset-block-end:8%; inset-inline-end:-6%;
+  background:var(--white); border-radius:var(--r-lg); box-shadow:var(--shadow-lg);
+  padding:18px 22px; z-index:3; max-width:230px; border:1px solid var(--line);
+}
+.about__stamp b{ display:block; font-size:1.6rem; color:var(--brand-red); line-height:1; }
+.about__stamp span{ display:block; margin-top:6px; font-size:.83rem; color:var(--text-muted); font-weight:500; }
+
+.about__lead{ font-size:clamp(1.05rem,1.9vw,1.2rem); color:var(--text); font-weight:500; margin-top:4px; }
+.about__body{ margin-top:18px; color:var(--text-muted); }
+.checks{ margin-top:28px; display:grid; gap:14px; }
+.checks li{ display:flex; align-items:flex-start; gap:12px; }
+.checks .tick{
+  width:24px; height:24px; flex:none; margin-top:2px;
+  border-radius:50%; background:var(--brand-red-tint); color:var(--brand-red);
+  display:grid; place-items:center;
+}
+.checks .tick svg{ width:13px; height:13px; }
+.checks strong{ display:block; font-size:.98rem; }
+.checks span{ font-size:.9rem; color:var(--text-muted); }
+
+/* ==========================================================================
+   12. SERVICES
+   ========================================================================== */
+.services__grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:clamp(18px,2.4vw,26px);
+}
+.service{
+  position:relative; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:32px 28px 34px; overflow:hidden;
+  transition:transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.service::before{
+  content:""; position:absolute; inset-block-start:0; inset-inline-start:0;
+  width:100%; height:4px; background:var(--brand-red);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 320ms var(--ease);
+}
+html[dir="rtl"] .service::before{ transform-origin:right; }
+.service:hover{ transform:translateY(-6px); box-shadow:var(--shadow-md); }
+.service:hover::before{ transform:scaleX(1); }
+.service__icon{
+  width:56px; height:56px; border-radius:16px; display:grid; place-items:center;
+  background:var(--brand-red-tint); color:var(--brand-red); margin-bottom:20px;
+  transition:background-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+.service:hover .service__icon{ background:var(--brand-red); color:#fff; }
+.service__icon svg{ width:27px; height:27px; }
+.service h3{ font-size:1.1rem; }
+.service p{ margin-top:10px; font-size:.93rem; color:var(--text-muted); }
+.service__num{
+  position:absolute; inset-block-start:22px; inset-inline-end:24px;
+  font-size:2.4rem; font-weight:800; color:var(--grey-100); line-height:1;
+}
+
+/* ==========================================================================
+   13. BRANCHES
+   ========================================================================== */
+.branches{
+  position:relative; color:#fff; overflow:hidden;
+  background:linear-gradient(150deg, var(--brand-red-deep) 0%, var(--brand-red-dark) 45%, var(--brand-red) 100%);
+  padding-block: clamp(90px,11vw,140px);
+}
+.branches .eyebrow{ color:#fff; }
+.branches .eyebrow::before{ background:#fff; }
+.branches .section-title{ color:#fff; }
+.branches .section-sub{ color:rgba(255,255,255,.88); }
+
+.branches__banner{
+  display:inline-flex; align-items:center; gap:12px;
+  background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.3);
+  border-radius:var(--r-pill); padding:10px 20px; margin-bottom:20px;
+  font-size:.88rem; font-weight:600;
+}
+.branches__banner svg{ width:18px; height:18px; flex:none; }
+
+.branch-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px; margin-top:clamp(32px,4.5vw,48px);
+}
+.branch{
+  position:relative; display:block;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22);
+  border-radius:var(--r-md); padding:22px 22px 24px;
+  backdrop-filter:blur(4px);
+  transition:background-color var(--t) var(--ease), transform var(--t) var(--ease), border-color var(--t) var(--ease);
+}
+.branch:hover{ background:#fff; color:var(--brand-red); transform:translateY(-4px); border-color:#fff; }
+.branch__pin{
+  width:36px; height:36px; border-radius:10px; display:grid; place-items:center;
+  background:rgba(255,255,255,.2); margin-bottom:14px; transition:background-color var(--t) var(--ease);
+}
+.branch:hover .branch__pin{ background:var(--brand-red-tint); }
+.branch__pin svg{ width:18px; height:18px; }
+.branch__city{ display:block; font-size:1.08rem; font-weight:700; }
+.branch__type{ display:block; margin-top:5px; font-size:.83rem; opacity:.82; }
+.branch__flag{
+  position:absolute; inset-block-start:20px; inset-inline-end:20px;
+  font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  opacity:.7;
+}
+html[lang="ar"] .branch__flag{ letter-spacing:0; text-transform:none; font-size:.74rem; }
+.branches__foot{
+  margin-top:clamp(32px,4vw,44px); display:flex; flex-wrap:wrap; gap:14px; align-items:center;
+}
+
+/* ==========================================================================
+   14. CONTACT / CTA
+   ========================================================================== */
+.contact__grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,4.5vw,64px); align-items:start; }
+.contact-list{ display:grid; gap:18px; margin-top:28px; }
+.contact-list li{ display:flex; gap:16px; align-items:flex-start; }
+.contact-list .ic{
+  width:46px; height:46px; flex:none; border-radius:14px;
+  background:var(--brand-red-tint); color:var(--brand-red); display:grid; place-items:center;
+}
+.contact-list .ic svg{ width:21px; height:21px; }
+.contact-list b{ display:block; font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-subtle); font-weight:700; }
+html[lang="ar"] .contact-list b{ letter-spacing:0; text-transform:none; font-size:.85rem; }
+.contact-list span{ display:block; font-size:1rem; font-weight:500; margin-top:3px; }
+.contact-list a:hover span{ color:var(--brand-red); }
+
+.form-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-xl);
+  padding:clamp(24px,3.4vw,36px); box-shadow:var(--shadow-md);
+}
+.field{ margin-bottom:18px; }
+.field label{ display:block; font-size:.86rem; font-weight:600; margin-bottom:8px; }
+.field input, .field textarea, .field select{
+  width:100%; min-height:50px; padding:13px 16px;
+  font:inherit; font-size:.95rem; color:var(--text);
+  background:var(--grey-50); border:1px solid var(--line); border-radius:var(--r-sm);
+  transition:border-color var(--t) var(--ease), background-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.field textarea{ min-height:120px; resize:vertical; }
+.field input:focus, .field textarea:focus, .field select:focus{
+  outline:none; background:var(--white); border-color:var(--brand-red);
+  box-shadow:0 0 0 4px var(--brand-red-tint);
+}
+.field .hint{ display:block; margin-top:7px; font-size:.8rem; color:var(--text-subtle); }
+.form-note{ margin-top:14px; font-size:.83rem; color:var(--text-subtle); text-align:center; }
+
+/* ==========================================================================
+   15. FOOTER
+   ========================================================================== */
+.footer{ position:relative; background:var(--grey-900); color:rgba(255,255,255,.72); padding-top:clamp(60px,8vw,92px); }
+.footer__grid{
+  display:grid; grid-template-columns:1.4fr 1fr 1fr 1.2fr; gap:clamp(28px,4vw,48px);
+  padding-bottom:clamp(40px,5vw,60px);
+}
+.footer h4{
+  color:#fff; font-size:.82rem; letter-spacing:.12em; text-transform:uppercase;
+  margin-bottom:20px; font-weight:700;
+}
+html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95rem; }
+.footer__about{ margin-top:20px; font-size:.92rem; max-width:34ch; }
+.footer__links{ display:grid; gap:12px; }
+.footer__links a{ font-size:.93rem; transition:color var(--t) var(--ease); }
+.footer__links a:hover{ color:#fff; }
+.socials{ display:flex; gap:10px; margin-top:22px; }
+.socials a{
+  width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
+  background:rgba(255,255,255,.08); color:#fff;
+  transition:background-color var(--t) var(--ease), transform var(--t) var(--ease);
+}
+.socials a:hover{ background:var(--brand-red); transform:translateY(-3px); }
+.socials svg{ width:19px; height:19px; }
+.footer__bar{
+  border-top:1px solid rgba(255,255,255,.1); padding-block:26px;
+  display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+  font-size:.85rem;
+}
+.footer__bar strong{ color:#fff; font-weight:600; }
+
+/* ==========================================================================
+   16. SCROLL REVEAL  (honours prefers-reduced-motion)
+   ========================================================================== */
+/* Scoped to .has-js so content is never hidden if scripting is off or fails. */
+.has-js .reveal{ opacity:0; transform:translateY(22px); transition:opacity 560ms var(--ease), transform 560ms var(--ease); }
+.has-js .reveal.is-in{ opacity:1; transform:none; }
+.reveal[data-delay="1"]{ transition-delay:80ms; }
+.reveal[data-delay="2"]{ transition-delay:160ms; }
+.reveal[data-delay="3"]{ transition-delay:240ms; }
+.reveal[data-delay="4"]{ transition-delay:320ms; }
+
+/* Toast confirmation for the demo form */
+.toast{
+  position:fixed; inset-block-end:24px; inset-inline:24px auto; z-index:1500;
+  background:var(--grey-900); color:#fff; padding:15px 22px; border-radius:var(--r-md);
+  box-shadow:var(--shadow-lg); font-size:.92rem; font-weight:500;
+  display:flex; align-items:center; gap:12px;
+  transform:translateY(140%); opacity:0;
+  transition:transform 320ms var(--ease), opacity 320ms var(--ease);
+}
+.toast.is-on{ transform:none; opacity:1; }
+.toast svg{ width:19px; height:19px; color:#5FD08A; flex:none; }
+
+/* ==========================================================================
+   17. RESPONSIVE  (mobile-first breakpoints, no horizontal scroll)
+   ========================================================================== */
+@media (max-width: 980px){
+  .about__grid, .contact__grid{ grid-template-columns:1fr; }
+  .about__stamp{ inset-inline-end:16px; }
+}
+@media (max-width: 860px){
+  .burger{ display:flex; }
+  .nav{
+    position:fixed; inset-block-start:var(--header-h); inset-inline:0;
+    flex-direction:column; align-items:stretch; gap:2px;
+    background:var(--white); border-bottom:1px solid var(--line);
+    padding:14px clamp(20px,5vw,32px) 26px;
+    box-shadow:var(--shadow-md);
+    transform:translateY(-14px); opacity:0; pointer-events:none;
+    transition:transform var(--t) var(--ease), opacity var(--t) var(--ease);
+    max-height:calc(100vh - var(--header-h)); overflow-y:auto;
+  }
+  .nav.is-open{ transform:none; opacity:1; pointer-events:auto; }
+  .nav a{ padding:14px 12px; font-size:1.02rem; min-height:48px; display:flex; align-items:center; }
+  .nav a::after{ display:none; }
+  .logo-tag{ display:none; }
+}
+@media (max-width: 620px){
+  :root{ --header-h:70px; }
+  .hero{ min-height:auto; }
+  .hero__cta .btn{ width:100%; }
+  .hero__stats{ gap:24px 32px; }
+  .footer__grid{ grid-template-columns:1fr 1fr; }
+  .products__head{ flex-direction:column; align-items:flex-start; }
+  .toast{ inset-inline:16px; }
+}
+@media (max-width: 420px){
+  .footer__grid{ grid-template-columns:1fr; }
+  .product-grid{ grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+  .reveal{ opacity:1; transform:none; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+
+<!-- ======================= HEADER ======================= -->
+<header class="header" id="header">
+  <div class="container header__inner">
+
+    <!-- LOGO — replace this block with <img src="decakila-logo.svg" alt="Decakila"> -->
+    <a class="logo" href="#home" aria-label="Decakila Libya — home">
+      <span class="logo-mark">
+        <span class="logo-word">decakila</span>
+        <span class="logo-slogan">Making Fun Life Easier</span>
+      </span>
+      <span class="logo-tag" data-i18n="logoTag">Libya Official</span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#home"     class="is-active" data-i18n="navHome">Home</a>
+      <a href="#products" data-i18n="navProducts">Products</a>
+      <a href="#about"    data-i18n="navAbout">About Us</a>
+      <a href="#services" data-i18n="navServices">Services</a>
+      <a href="#branches" data-i18n="navBranches">Branches</a>
+      <a href="#contact"  data-i18n="navContact">Contact</a>
+    </nav>
+
+    <div class="header__actions">
+      <!-- LANGUAGE SWITCHER -->
+      <div class="lang" role="group" aria-label="Language / اللغة">
+        <button type="button" class="lang__btn lang__btn--en" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" class="lang__btn lang__btn--ar" data-lang="ar" aria-pressed="false">ع</button>
+      </div>
+      <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="home">
+  <div class="hero__ambient"></div>
+
+  <!-- Drop your MP4 into the src below; it fades in automatically once it plays. -->
+  <video class="hero__video" id="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+    <!-- <source src="assets/decakila-hero.mp4" type="video/mp4"> -->
+  </video>
+
+  <div class="hero__scrim"></div>
+
+  <div class="container">
+    <div class="hero__inner">
+      <span class="hero__eyebrow"><span class="dot"></span><span data-i18n="heroBadge">Authorized Distributor in Libya</span></span>
+
+      <h1 class="hero__title">
+        <span data-i18n="heroTitle1">Appliances that make</span>
+        <span data-i18n="heroTitle2">every home easier.</span>
+      </h1>
+
+      <p class="hero__slogan" data-i18n="slogan">Making Fun Life Easier</p>
+
+      <p class="hero__text" data-i18n="heroText">
+        Decakila kitchen and home appliances, officially distributed across Libya —
+        backed by local warranty, genuine spare parts and seven branches ready to serve you.
+      </p>
+
+      <div class="hero__cta">
+        <a class="btn btn--onred" href="#products">
+          <span data-i18n="ctaProducts">Explore Products</span>
+          <svg class="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn--outline-light" href="#branches" data-i18n="ctaBranch">Find a Branch</a>
+      </div>
+
+      <div class="hero__stats">
+        <div class="stat"><div class="stat__num">7</div><div class="stat__label" data-i18n="statBranches">Branches nationwide</div></div>
+        <div class="stat"><div class="stat__num">120+</div><div class="stat__label" data-i18n="statProducts">Products in range</div></div>
+        <div class="stat"><div class="stat__num">12</div><div class="stat__label" data-i18n="statWarranty">Months local warranty</div></div>
+        <div class="stat"><div class="stat__num">100%</div><div class="stat__label" data-i18n="statGenuine">Genuine spare parts</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND SWOOSH — the logo's S-curve as a section divider -->
+  <div class="swoosh swoosh--bottom" aria-hidden="true">
+    <svg viewBox="0 0 1440 110" preserveAspectRatio="none">
+      <path d="M0,110 L1440,110 L1440,24 C1180,102 1010,6 660,62 C430,99 190,104 0,58 Z" fill="#FFFFFF"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ======================= TRUST STRIP ======================= -->
+<section class="trust">
+  <div class="container trust__grid">
+    <div class="trust__item reveal">
+      <span class="trust__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <div><div class="trust__label" data-i18n="trust1">Official Warranty</div><div class="trust__meta" data-i18n="trust1s">Registered at purchase</div></div>
+    </div>
+    <div class="trust__item reveal" data-delay="1">
+      <span class="trust__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1A1.7 1.7 0 008.9 19a1.7 1.7 0 00-1.9.4l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1A1.7 1.7 0 005 8.9a1.7 1.7 0 00-.4-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></span>
+      <div><div class="trust__label" data-i18n="trust2">In-House Service</div><div class="trust__meta" data-i18n="trust2s">Trained technicians</div></div>
+    </div>
+    <div class="trust__item reveal" data-delay="2">
+      <span class="trust__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="19" r="2"/><circle cx="17.5" cy="19" r="2"/></svg></span>
+      <div><div class="trust__label" data-i18n="trust3">Nationwide Delivery</div><div class="trust__meta" data-i18n="trust3s">From seven branches</div></div>
+    </div>
+    <div class="trust__item reveal" data-delay="3">
+      <span class="trust__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7H4a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><path d="M2 12h20"/></svg></span>
+      <div><div class="trust__label" data-i18n="trust4">Wholesale &amp; Retail</div><div class="trust__meta" data-i18n="trust4s">Dealer pricing available</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PRODUCTS ======================= -->
+<section class="section" id="products">
+  <div class="container">
+
+    <div class="products__head">
+      <div class="section-head">
+        <span class="eyebrow" data-i18n="prodEyebrow">Our Range</span>
+        <h2 class="section-title"><span data-i18n="prodTitleA">Built for the </span><em data-i18n="prodTitleB">Libyan home</em></h2>
+        <p class="section-sub" data-i18n="prodSub">
+          A placeholder selection from the Decakila catalogue. The full range — kitchen, cooling,
+          laundry and small appliances — plugs into this grid once the product data is connected.
+        </p>
+      </div>
+      <a class="btn btn--ghost btn--sm" href="#contact" data-i18n="prodCatalogue">Request full catalogue</a>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="Product categories">
+      <button class="chip is-active" role="tab" aria-selected="true"  data-filter="all"     data-i18n="filAll">All</button>
+      <button class="chip"           role="tab" aria-selected="false" data-filter="kitchen" data-i18n="filKitchen">Kitchen</button>
+      <button class="chip"           role="tab" aria-selected="false" data-filter="cooling" data-i18n="filCooling">Cooling</button>
+      <button class="chip"           role="tab" aria-selected="false" data-filter="home"    data-i18n="filHome">Home</button>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+
+      <!-- Product 1 -->
+      <article class="card reveal" data-cat="kitchen">
+        <div class="card__media">
+          <span class="badge" data-i18n="badgeNew">New</span>
+          <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M40 18h40l-6 40H46z"/><path d="M52 58h16v12H52z"/>
+            <rect x="34" y="70" width="52" height="34" rx="8"/>
+            <path d="M46 82h28M46 92h16"/>
+          </svg>
+        </div>
+        <div class="card__body">
+          <div class="card__cat" data-i18n="p1cat">Kitchen</div>
+          <h3 class="card__title" data-i18n="p1name">Glass Jar Blender</h3>
+          <p class="card__desc" data-i18n="p1desc">Two-speed motor with pulse, 1.5 L heat-resistant glass jar and stainless steel blades.</p>
+          <ul class="card__specs">
+            <li data-i18n="p1s1">500 W</li><li data-i18n="p1s2">1.5 L</li><li data-i18n="p1s3">2 speeds</li>
+          </ul>
+          <div class="card__foot">
+            <span class="card__model">KEBD001</span>
+            <a class="card__link" href="#contact">
+              <span data-i18n="cardCta">Enquire</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product 2 -->
+      <article class="card reveal" data-delay="1" data-cat="kitchen">
+        <div class="card__media">
+          <span class="badge badge--dark" data-i18n="badgeTop">Best seller</span>
+          <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="12" y="30" width="96" height="60" rx="8"/>
+            <rect x="22" y="42" width="52" height="36" rx="4"/>
+            <path d="M86 44v10M86 62h.01M86 72h.01"/>
+          </svg>
+        </div>
+        <div class="card__body">
+          <div class="card__cat" data-i18n="p2cat">Kitchen</div>
+          <h3 class="card__title" data-i18n="p2name">Digital Microwave Oven</h3>
+          <p class="card__desc" data-i18n="p2desc">20 L cavity with grill, digital touch panel, six auto-cook menus and child lock.</p>
+          <ul class="card__specs">
+            <li data-i18n="p2s1">20 L</li><li data-i18n="p2s2">700 W</li><li data-i18n="p2s3">Grill</li>
+          </ul>
+          <div class="card__foot">
+            <span class="card__model">KEMW003</span>
+            <a class="card__link" href="#contact">
+              <span data-i18n="cardCta">Enquire</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product 3 -->
+      <article class="card reveal" data-delay="2" data-cat="cooling">
+        <div class="card__media">
+          <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="32" y="10" width="56" height="100" rx="10"/>
+            <path d="M32 46h56"/><path d="M76 26v12M76 58v12"/>
+          </svg>
+        </div>
+        <div class="card__body">
+          <div class="card__cat" data-i18n="p3cat">Cooling</div>
+          <h3 class="card__title" data-i18n="p3name">Double Door Refrigerator</h3>
+          <p class="card__desc" data-i18n="p3desc">No-frost cooling tuned for high ambient temperatures, with adjustable thermostat and LED interior.</p>
+          <ul class="card__specs">
+            <li data-i18n="p3s1">340 L</li><li data-i18n="p3s2">No frost</li><li data-i18n="p3s3">A+</li>
+          </ul>
+          <div class="card__foot">
+            <span class="card__model">KEFR012</span>
+            <a class="card__link" href="#contact">
+              <span data-i18n="cardCta">Enquire</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product 4 -->
+      <article class="card reveal" data-delay="3" data-cat="home">
+        <div class="card__media">
+          <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="20" y="14" width="80" height="92" rx="10"/>
+            <circle cx="60" cy="66" r="24"/><circle cx="60" cy="66" r="11"/>
+            <path d="M34 30h16M84 30h.01"/>
+          </svg>
+        </div>
+        <div class="card__body">
+          <div class="card__cat" data-i18n="p4cat">Home</div>
+          <h3 class="card__title" data-i18n="p4name">Front Load Washing Machine</h3>
+          <p class="card__desc" data-i18n="p4desc">7 kg drum, fifteen wash programmes, quick 30-minute cycle and a stable low-noise motor.</p>
+          <ul class="card__specs">
+            <li data-i18n="p4s1">7 kg</li><li data-i18n="p4s2">1000 rpm</li><li data-i18n="p4s3">15 programmes</li>
+          </ul>
+          <div class="card__foot">
+            <span class="card__model">KEWM007</span>
+            <a class="card__link" href="#contact">
+              <span data-i18n="cardCta">Enquire</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="products__foot">
+      <a class="btn btn--primary" href="#contact">
+        <span data-i18n="prodMore">Ask about the full range</span>
+        <svg class="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= ABOUT ======================= -->
+<section class="section section--alt" id="about">
+  <div class="container about__grid">
+
+    <div class="about__visual reveal">
+      <div class="about__panel">
+        <svg class="kitchen" viewBox="0 0 200 150" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="14" y="30" width="52" height="90" rx="7"/><path d="M14 62h52"/><path d="M56 44v10M56 74v10"/>
+          <rect x="78" y="66" width="52" height="54" rx="7"/><circle cx="104" cy="93" r="15"/><circle cx="104" cy="93" r="6"/>
+          <rect x="142" y="40" width="46" height="34" rx="6"/><rect x="150" y="48" width="22" height="18" rx="3"/>
+          <rect x="142" y="86" width="46" height="34" rx="6"/><circle cx="153" cy="97" r="4"/><circle cx="168" cy="97" r="4"/><path d="M148 110h34"/>
+        </svg>
+      </div>
+      <div class="about__stamp">
+        <b data-i18n="aboutStampNum">Sole</b>
+        <span data-i18n="aboutStampTxt">Authorized Decakila distributor for Libya</span>
+      </div>
+    </div>
+
+    <div class="about__copy reveal" data-delay="1">
+      <span class="eyebrow" data-i18n="aboutEyebrow">About Us</span>
+      <h2 class="section-title"><span data-i18n="aboutTitleA">The name behind </span><em data-i18n="aboutTitleB">Decakila in Libya</em></h2>
+      <p class="about__lead" data-i18n="aboutLead">
+        We bring the full Decakila line of kitchen and home appliances to Libyan families —
+        officially, with the service network to stand behind every unit we sell.
+      </p>
+      <p class="about__body" data-i18n="aboutBody">
+        Placeholder copy. From our first branch in Benghazi we have grown to seven locations across
+        the country, supplying households, retailers and project buyers alike. Every appliance arrives
+        through official channels, is checked before handover, and is covered by a warranty honoured
+        at any of our branches.
+      </p>
+
+      <ul class="checks">
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l6 6L20 6"/></svg></span>
+          <div><strong data-i18n="ab1">Official channel only</strong><span data-i18n="ab1s">Every unit sourced directly from the manufacturer.</span></div>
+        </li>
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l6 6L20 6"/></svg></span>
+          <div><strong data-i18n="ab2">Warranty honoured nationwide</strong><span data-i18n="ab2s">Buy in one city, get service in another.</span></div>
+        </li>
+        <li>
+          <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l6 6L20 6"/></svg></span>
+          <div><strong data-i18n="ab3">Spare parts in stock</strong><span data-i18n="ab3s">Genuine components held locally, not ordered on demand.</span></div>
+        </li>
+      </ul>
+
+      <div class="hero__cta" style="margin-top:32px">
+        <a class="btn btn--primary" href="#branches">
+          <span data-i18n="aboutCta">See our branches</span>
+          <svg class="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SERVICES ======================= -->
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <span class="eyebrow" data-i18n="svcEyebrow">Services</span>
+      <h2 class="section-title"><span data-i18n="svcTitleA">More than a </span><em data-i18n="svcTitleB">box on a shelf</em></h2>
+      <p class="section-sub" data-i18n="svcSub">
+        Placeholder text. What you get from an authorized distributor that you do not get from a parallel import.
+      </p>
+    </div>
+
+    <div class="services__grid">
+      <article class="service reveal">
+        <span class="service__num">01</span>
+        <span class="service__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <h3 data-i18n="svc1">Warranty &amp; Registration</h3>
+        <p data-i18n="svc1d">Twelve months of official cover, registered at the moment of purchase and valid at every branch.</p>
+      </article>
+
+      <article class="service reveal" data-delay="1">
+        <span class="service__num">02</span>
+        <span class="service__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 005.3 5.3l-8 8a2.8 2.8 0 11-4-4l8-8z"/><path d="M6 18h.01"/></svg></span>
+        <h3 data-i18n="svc2">Maintenance &amp; Repair</h3>
+        <p data-i18n="svc2d">Trained technicians and genuine spare parts kept in stock, so a repair is a visit and not a wait.</p>
+      </article>
+
+      <article class="service reveal" data-delay="2">
+        <span class="service__num">03</span>
+        <span class="service__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="19" r="2"/><circle cx="17.5" cy="19" r="2"/></svg></span>
+        <h3 data-i18n="svc3">Delivery &amp; Installation</h3>
+        <p data-i18n="svc3d">Delivered to your door from the nearest branch, with installation arranged for larger appliances.</p>
+      </article>
+
+      <article class="service reveal" data-delay="3">
+        <span class="service__num">04</span>
+        <span class="service__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg></span>
+        <h3 data-i18n="svc4">Wholesale &amp; Projects</h3>
+        <p data-i18n="svc4d">Dealer pricing, bulk supply for retailers, and fit-out quantities for hotels and residential projects.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= BRANCHES ======================= -->
+<section class="branches" id="branches">
+  <div class="swoosh swoosh--top swoosh--flip" aria-hidden="true">
+    <svg viewBox="0 0 1440 110" preserveAspectRatio="none">
+      <path d="M0,110 L1440,110 L1440,24 C1180,102 1010,6 660,62 C430,99 190,104 0,58 Z" fill="#FFFFFF"/>
+    </svg>
+  </div>
+
+  <div class="container">
+    <div class="section-head">
+      <span class="branches__banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span data-i18n="brBanner">Authorized Decakila distributor in Libya</span>
+      </span>
+      <h2 class="section-title" data-i18n="brTitle">Seven branches, one standard of service</h2>
+      <p class="section-sub" data-i18n="brSub">
+        Wherever you buy, your warranty and service follow you. Addresses and opening hours are placeholders
+        until the real branch details are added.
+      </p>
+    </div>
+
+    <div class="branch-grid">
+      <a class="branch reveal" href="#contact">
+        <span class="branch__flag" data-i18n="brMain">Main</span>
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityBenghazi">Benghazi</span>
+        <span class="branch__type" data-i18n="brShowroom">Showroom &amp; service centre</span>
+      </a>
+      <a class="branch reveal" data-delay="1" href="#contact">
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityTripoli">Tripoli</span>
+        <span class="branch__type" data-i18n="brShowroom">Showroom &amp; service centre</span>
+      </a>
+      <a class="branch reveal" data-delay="2" href="#contact">
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityMisrata">Misrata</span>
+        <span class="branch__type" data-i18n="brStore">Retail store</span>
+      </a>
+      <a class="branch reveal" data-delay="3" href="#contact">
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityMarj">Al Marj</span>
+        <span class="branch__type" data-i18n="brStore">Retail store</span>
+      </a>
+      <a class="branch reveal" href="#contact">
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityAbyar">Al Abyar</span>
+        <span class="branch__type" data-i18n="brStore">Retail store</span>
+      </a>
+      <a class="branch reveal" data-delay="1" href="#contact">
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityBayda">Al Bayda</span>
+        <span class="branch__type" data-i18n="brStore">Retail store</span>
+      </a>
+      <a class="branch reveal" data-delay="2" href="#contact">
+        <span class="branch__pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="branch__city" data-i18n="cityDerna">Derna</span>
+        <span class="branch__type" data-i18n="brStore">Retail store</span>
+      </a>
+    </div>
+
+    <div class="branches__foot">
+      <a class="btn btn--onred" href="#contact" data-i18n="brCta">Contact the nearest branch</a>
+      <span style="font-size:.9rem;opacity:.85" data-i18n="brNote">Addresses, phone numbers and opening hours to be added.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CONTACT ======================= -->
+<section class="section" id="contact">
+  <div class="container contact__grid">
+
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="conEyebrow">Contact</span>
+      <h2 class="section-title"><span data-i18n="conTitleA">Talk to </span><em data-i18n="conTitleB">Decakila Libya</em></h2>
+      <p class="section-sub" data-i18n="conSub">
+        Product enquiries, dealer pricing, warranty and service — one message reaches the right branch.
+      </p>
+
+      <ul class="contact-list">
+        <li>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.2a2 2 0 012.1-.5c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z"/></svg></span>
+          <div><b data-i18n="conPhone">Phone</b><span dir="ltr">+218 00 000 0000</span></div>
+        </li>
+        <li>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg></span>
+          <div><b data-i18n="conEmail">Email</b><span dir="ltr">info@decakila.ly</span></div>
+        </li>
+        <li>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <div><b data-i18n="conHQ">Head office</b><span data-i18n="conHQv">Benghazi, Libya</span></div>
+        </li>
+        <li>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+          <div><b data-i18n="conHours">Opening hours</b><span data-i18n="conHoursv">Saturday – Thursday, 9:00 – 20:00</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <form class="form-card reveal" data-delay="1" id="contactForm" novalidate>
+      <div class="field">
+        <label for="f-name" data-i18n="fName">Full name</label>
+        <input id="f-name" name="name" type="text" required autocomplete="name" data-i18n-ph="fNamePh" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="f-phone" data-i18n="fPhone">Phone number</label>
+        <input id="f-phone" name="phone" type="tel" required dir="ltr" autocomplete="tel" placeholder="+218 ...">
+        <span class="hint" data-i18n="fPhoneHint">We reply on WhatsApp where possible.</span>
+      </div>
+      <div class="field">
+        <label for="f-branch" data-i18n="fBranch">Nearest branch</label>
+        <select id="f-branch" name="branch">
+          <option value="benghazi" data-i18n="cityBenghazi">Benghazi</option>
+          <option value="tripoli"  data-i18n="cityTripoli">Tripoli</option>
+          <option value="misrata"  data-i18n="cityMisrata">Misrata</option>
+          <option value="marj"     data-i18n="cityMarj">Al Marj</option>
+          <option value="abyar"    data-i18n="cityAbyar">Al Abyar</option>
+          <option value="bayda"    data-i18n="cityBayda">Al Bayda</option>
+          <option value="derna"    data-i18n="cityDerna">Derna</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-msg" data-i18n="fMsg">Message</label>
+        <textarea id="f-msg" name="message" data-i18n-ph="fMsgPh" placeholder="Which product are you asking about?"></textarea>
+      </div>
+      <button class="btn btn--primary" type="submit" style="width:100%" data-i18n="fSend">Send enquiry</button>
+      <p class="form-note" data-i18n="fNote">Mockup only — this form does not submit anywhere yet.</p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+
+      <div>
+        <span class="logo logo--footer">
+          <span class="logo-mark">
+            <span class="logo-word">decakila</span>
+            <span class="logo-slogan">Making Fun Life Easier</span>
+          </span>
+        </span>
+        <p class="footer__about" data-i18n="ftAbout">
+          The authorized distributor of Decakila kitchen and home appliances in Libya,
+          with seven branches from Tripoli to Derna.
+        </p>
+        <div class="socials">
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1a12 12 0 01-5.6-4.9c-.4-.7-.7-1.5-.7-2.2 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.8 1.8c.1.2 0 .4-.1.5l-.4.5c-.1.2-.3.3-.1.6.5.9 1.5 1.9 2.5 2.4.3.2.5.1.6 0l.6-.7c.2-.2.3-.2.5-.1l1.7.8c.2.1.4.2.4.4v.6z"/></svg></a>
+        </div>
+      </div>
+
+      <div>
+        <h4 data-i18n="ftExplore">Explore</h4>
+        <nav class="footer__links" aria-label="Footer">
+          <a href="#home"     data-i18n="navHome">Home</a>
+          <a href="#products" data-i18n="navProducts">Products</a>
+          <a href="#about"    data-i18n="navAbout">About Us</a>
+          <a href="#services" data-i18n="navServices">Services</a>
+        </nav>
+      </div>
+
+      <div>
+        <h4 data-i18n="ftBranches">Branches</h4>
+        <nav class="footer__links" aria-label="Branches">
+          <a href="#branches" data-i18n="cityBenghazi">Benghazi</a>
+          <a href="#branches" data-i18n="cityTripoli">Tripoli</a>
+          <a href="#branches" data-i18n="cityMisrata">Misrata</a>
+          <a href="#branches" data-i18n="cityBayda">Al Bayda</a>
+          <a href="#branches" data-i18n="ftAllBranches">All seven branches</a>
+        </nav>
+      </div>
+
+      <div>
+        <h4 data-i18n="ftContact">Contact</h4>
+        <div class="footer__links">
+          <a href="tel:+21800000000" dir="ltr">+218 00 000 0000</a>
+          <a href="mailto:info@decakila.ly" dir="ltr">info@decakila.ly</a>
+          <span data-i18n="conHQv">Benghazi, Libya</span>
+          <span data-i18n="conHoursv">Saturday – Thursday, 9:00 – 20:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bar">
+      <span><strong data-i18n="ftCopyBrand">Decakila Libya</strong> <span data-i18n="ftCopy">© 2026. All rights reserved.</span></span>
+      <span data-i18n="ftDisclaimer">Authorized distributor. Product details on this page are placeholders.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l6 6L20 6"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+/* ==========================================================================
+   TRANSLATIONS
+   One key set, two languages. To add a string: give the element
+   data-i18n="key" (or data-i18n-ph="key" for a placeholder) and add the key
+   to BOTH T.en and T.ar below.
+   ========================================================================== */
+const T = {
+  en: {
+    skip:"Skip to content", logoTag:"Libya Official",
+    navHome:"Home", navProducts:"Products", navAbout:"About Us",
+    navServices:"Services", navBranches:"Branches", navContact:"Contact",
+
+    heroBadge:"Authorized Distributor in Libya",
+    heroTitle1:"Appliances that make", heroTitle2:"every home easier.",
+    slogan:"Making Fun Life Easier",
+    heroText:"Decakila kitchen and home appliances, officially distributed across Libya — backed by local warranty, genuine spare parts and seven branches ready to serve you.",
+    ctaProducts:"Explore Products", ctaBranch:"Find a Branch",
+    statBranches:"Branches nationwide", statProducts:"Products in range",
+    statWarranty:"Months local warranty", statGenuine:"Genuine spare parts",
+
+    trust1:"Official Warranty", trust1s:"Registered at purchase",
+    trust2:"In-House Service",  trust2s:"Trained technicians",
+    trust3:"Nationwide Delivery", trust3s:"From seven branches",
+    trust4:"Wholesale & Retail", trust4s:"Dealer pricing available",
+
+    prodEyebrow:"Our Range", prodTitleA:"Built for the ", prodTitleB:"Libyan home",
+    prodSub:"A placeholder selection from the Decakila catalogue. The full range — kitchen, cooling, laundry and small appliances — plugs into this grid once the product data is connected.",
+    prodCatalogue:"Request full catalogue", prodMore:"Ask about the full range",
+    filAll:"All", filKitchen:"Kitchen", filCooling:"Cooling", filHome:"Home",
+    badgeNew:"New", badgeTop:"Best seller", cardCta:"Enquire",
+
+    p1cat:"Kitchen", p1name:"Glass Jar Blender",
+    p1desc:"Two-speed motor with pulse, 1.5 L heat-resistant glass jar and stainless steel blades.",
+    p1s1:"500 W", p1s2:"1.5 L", p1s3:"2 speeds",
+    p2cat:"Kitchen", p2name:"Digital Microwave Oven",
+    p2desc:"20 L cavity with grill, digital touch panel, six auto-cook menus and child lock.",
+    p2s1:"20 L", p2s2:"700 W", p2s3:"Grill",
+    p3cat:"Cooling", p3name:"Double Door Refrigerator",
+    p3desc:"No-frost cooling tuned for high ambient temperatures, with adjustable thermostat and LED interior.",
+    p3s1:"340 L", p3s2:"No frost", p3s3:"A+",
+    p4cat:"Home", p4name:"Front Load Washing Machine",
+    p4desc:"7 kg drum, fifteen wash programmes, quick 30-minute cycle and a stable low-noise motor.",
+    p4s1:"7 kg", p4s2:"1000 rpm", p4s3:"15 programmes",
+
+    aboutEyebrow:"About Us", aboutTitleA:"The name behind ", aboutTitleB:"Decakila in Libya",
+    aboutLead:"We bring the full Decakila line of kitchen and home appliances to Libyan families — officially, with the service network to stand behind every unit we sell.",
+    aboutBody:"Placeholder copy. From our first branch in Benghazi we have grown to seven locations across the country, supplying households, retailers and project buyers alike. Every appliance arrives through official channels, is checked before handover, and is covered by a warranty honoured at any of our branches.",
+    aboutStampNum:"Sole", aboutStampTxt:"Authorized Decakila distributor for Libya",
+    ab1:"Official channel only", ab1s:"Every unit sourced directly from the manufacturer.",
+    ab2:"Warranty honoured nationwide", ab2s:"Buy in one city, get service in another.",
+    ab3:"Spare parts in stock", ab3s:"Genuine components held locally, not ordered on demand.",
+    aboutCta:"See our branches",
+
+    svcEyebrow:"Services", svcTitleA:"More than a ", svcTitleB:"box on a shelf",
+    svcSub:"Placeholder text. What you get from an authorized distributor that you do not get from a parallel import.",
+    svc1:"Warranty & Registration", svc1d:"Twelve months of official cover, registered at the moment of purchase and valid at every branch.",
+    svc2:"Maintenance & Repair", svc2d:"Trained technicians and genuine spare parts kept in stock, so a repair is a visit and not a wait.",
+    svc3:"Delivery & Installation", svc3d:"Delivered to your door from the nearest branch, with installation arranged for larger appliances.",
+    svc4:"Wholesale & Projects", svc4d:"Dealer pricing, bulk supply for retailers, and fit-out quantities for hotels and residential projects.",
+
+    brBanner:"Authorized Decakila distributor in Libya",
+    brTitle:"Seven branches, one standard of service",
+    brSub:"Wherever you buy, your warranty and service follow you. Addresses and opening hours are placeholders until the real branch details are added.",
+    brMain:"Main", brShowroom:"Showroom & service centre", brStore:"Retail store",
+    brCta:"Contact the nearest branch", brNote:"Addresses, phone numbers and opening hours to be added.",
+    cityBenghazi:"Benghazi", cityTripoli:"Tripoli", cityMisrata:"Misrata",
+    cityMarj:"Al Marj", cityAbyar:"Al Abyar", cityBayda:"Al Bayda", cityDerna:"Derna",
+
+    conEyebrow:"Contact", conTitleA:"Talk to ", conTitleB:"Decakila Libya",
+    conSub:"Product enquiries, dealer pricing, warranty and service — one message reaches the right branch.",
+    conPhone:"Phone", conEmail:"Email", conHQ:"Head office", conHQv:"Benghazi, Libya",
+    conHours:"Opening hours", conHoursv:"Saturday – Thursday, 9:00 – 20:00",
+    fName:"Full name", fNamePh:"Your name",
+    fPhone:"Phone number", fPhoneHint:"We reply on WhatsApp where possible.",
+    fBranch:"Nearest branch", fMsg:"Message", fMsgPh:"Which product are you asking about?",
+    fSend:"Send enquiry", fNote:"Mockup only — this form does not submit anywhere yet.",
+    fOk:"Thank you — your enquiry has been noted.",
+    fErr:"Please add your name and phone number.",
+
+    ftExplore:"Explore", ftBranches:"Branches", ftContact:"Contact",
+    ftAllBranches:"All seven branches",
+    ftAbout:"The authorized distributor of Decakila kitchen and home appliances in Libya, with seven branches from Tripoli to Derna.",
+    ftCopyBrand:"Decakila Libya", ftCopy:"© 2026. All rights reserved.",
+    ftDisclaimer:"Authorized distributor. Product details on this page are placeholders."
+  },
+
+  ar: {
+    skip:"تخطَّ إلى المحتوى", logoTag:"ليبيا · الوكيل المعتمد",
+    navHome:"الرئيسية", navProducts:"المنتجات", navAbout:"من نحن",
+    navServices:"الخدمات", navBranches:"الفروع", navContact:"تواصل معنا",
+
+    heroBadge:"الموزّع المعتمد في ليبيا",
+    heroTitle1:"أجهزة تجعل", heroTitle2:"كل بيت أسهل.",
+    slogan:"حياة أسهل وأكثر متعة",
+    heroText:"أجهزة ديكاكيلا للمطبخ والمنزل، موزّعة رسمياً في كل ليبيا — بضمان محلي وقطع غيار أصلية وسبعة فروع في خدمتكم.",
+    ctaProducts:"تصفّح المنتجات", ctaBranch:"أقرب فرع إليك",
+    statBranches:"فروع في ليبيا", statProducts:"منتج في التشكيلة",
+    statWarranty:"شهراً ضمان محلي", statGenuine:"قطع غيار أصلية",
+
+    trust1:"ضمان رسمي", trust1s:"يُسجَّل عند الشراء",
+    trust2:"صيانة داخلية", trust2s:"فنيّون مدرَّبون",
+    trust3:"توصيل لكل ليبيا", trust3s:"من سبعة فروع",
+    trust4:"جملة وتجزئة", trust4s:"أسعار خاصة للموزّعين",
+
+    prodEyebrow:"تشكيلتنا", prodTitleA:"مصمَّمة ", prodTitleB:"للبيت الليبي",
+    prodSub:"نماذج مبدئية من كتالوج ديكاكيلا. التشكيلة الكاملة — المطبخ والتبريد والغسيل والأجهزة الصغيرة — ستظهر في هذه الشبكة عند ربط بيانات المنتجات.",
+    prodCatalogue:"اطلب الكتالوج الكامل", prodMore:"اسأل عن التشكيلة الكاملة",
+    filAll:"الكل", filKitchen:"المطبخ", filCooling:"التبريد", filHome:"المنزل",
+    badgeNew:"جديد", badgeTop:"الأكثر مبيعاً", cardCta:"استفسر",
+
+    p1cat:"المطبخ", p1name:"خلاط بإبريق زجاجي",
+    p1desc:"محرك بسرعتين مع خاصية النبض، إبريق زجاجي مقاوم للحرارة سعة ١٫٥ لتر وشفرات ستانلس ستيل.",
+    p1s1:"٥٠٠ واط", p1s2:"١٫٥ لتر", p1s3:"سرعتان",
+    p2cat:"المطبخ", p2name:"ميكروويف رقمي",
+    p2desc:"سعة ٢٠ لتر مع شواية، لوحة لمس رقمية، ستة برامج طهي تلقائية وقفل أمان للأطفال.",
+    p2s1:"٢٠ لتر", p2s2:"٧٠٠ واط", p2s3:"شواية",
+    p3cat:"التبريد", p3name:"ثلاجة بابين",
+    p3desc:"تبريد بدون ثلج مهيَّأ لدرجات الحرارة المرتفعة، مع منظّم حرارة قابل للضبط وإضاءة LED داخلية.",
+    p3s1:"٣٤٠ لتر", p3s2:"بدون ثلج", p3s3:"‎+A",
+    p4cat:"المنزل", p4name:"غسالة أوتوماتيك أمامية",
+    p4desc:"سعة ٧ كجم، خمسة عشر برنامج غسيل، دورة سريعة في ٣٠ دقيقة ومحرك هادئ وثابت.",
+    p4s1:"٧ كجم", p4s2:"١٠٠٠ لفة", p4s3:"١٥ برنامجاً",
+
+    aboutEyebrow:"من نحن", aboutTitleA:"الاسم وراء ", aboutTitleB:"ديكاكيلا في ليبيا",
+    aboutLead:"نوفّر تشكيلة ديكاكيلا الكاملة من أجهزة المطبخ والمنزل للعائلة الليبية — رسمياً، وبشبكة خدمة تقف خلف كل جهاز نبيعه.",
+    aboutBody:"نص مبدئي. بدأنا بفرعنا الأول في بنغازي ووصلنا اليوم إلى سبعة فروع في أنحاء البلاد، نخدم البيوت والمحلات ومشتري المشاريع. كل جهاز يصل عبر القنوات الرسمية، ويُفحص قبل التسليم، ويشمله ضمان معتمد في أي من فروعنا.",
+    aboutStampNum:"الوكيل", aboutStampTxt:"الموزّع المعتمد لديكاكيلا في ليبيا",
+    ab1:"قنوات رسمية فقط", ab1s:"كل جهاز يأتي مباشرة من المصنع.",
+    ab2:"ضمان معتمد في كل الفروع", ab2s:"اشترِ من مدينة واحصل على الخدمة في أخرى.",
+    ab3:"قطع غيار متوفرة", ab3s:"قطع أصلية موجودة لدينا محلياً، لا تُطلب عند الحاجة.",
+    aboutCta:"تعرّف على فروعنا",
+
+    svcEyebrow:"خدماتنا", svcTitleA:"أكثر من ", svcTitleB:"صندوق على الرف",
+    svcSub:"نص مبدئي. ما تحصل عليه من موزّع معتمد ولا تجده في الاستيراد الموازي.",
+    svc1:"الضمان والتسجيل", svc1d:"اثنا عشر شهراً من الضمان الرسمي، تُسجَّل لحظة الشراء وتسري في كل فرع.",
+    svc2:"الصيانة والإصلاح", svc2d:"فنيّون مدرَّبون وقطع غيار أصلية متوفرة، فيصبح الإصلاح زيارة لا انتظاراً.",
+    svc3:"التوصيل والتركيب", svc3d:"توصيل إلى باب منزلك من أقرب فرع، مع ترتيب التركيب للأجهزة الكبيرة.",
+    svc4:"الجملة والمشاريع", svc4d:"أسعار للموزّعين، وتوريد بالجملة للمحلات، وكميات تجهيز للفنادق والمشاريع السكنية.",
+
+    brBanner:"الموزّع المعتمد لديكاكيلا في ليبيا",
+    brTitle:"سبعة فروع بمستوى خدمة واحد",
+    brSub:"أينما اشتريت، يتبعك الضمان والخدمة. العناوين وساعات العمل مبدئية إلى حين إضافة بيانات الفروع الحقيقية.",
+    brMain:"الرئيسي", brShowroom:"معرض ومركز صيانة", brStore:"معرض للبيع",
+    brCta:"تواصل مع أقرب فرع", brNote:"سيتم إضافة العناوين وأرقام الهاتف وساعات العمل.",
+    cityBenghazi:"بنغازي", cityTripoli:"طرابلس", cityMisrata:"مصراتة",
+    cityMarj:"المرج", cityAbyar:"الأبيار", cityBayda:"البيضاء", cityDerna:"درنة",
+
+    conEyebrow:"تواصل معنا", conTitleA:"تحدّث إلى ", conTitleB:"ديكاكيلا ليبيا",
+    conSub:"استفسارات المنتجات، أسعار الموزّعين، الضمان والصيانة — رسالة واحدة تصل إلى الفرع المناسب.",
+    conPhone:"الهاتف", conEmail:"البريد الإلكتروني", conHQ:"المقر الرئيسي", conHQv:"بنغازي، ليبيا",
+    conHours:"ساعات العمل", conHoursv:"السبت – الخميس، ٩:٠٠ – ٢٠:٠٠",
+    fName:"الاسم الكامل", fNamePh:"اسمك",
+    fPhone:"رقم الهاتف", fPhoneHint:"نردّ عبر واتساب متى أمكن.",
+    fBranch:"أقرب فرع", fMsg:"الرسالة", fMsgPh:"عن أي منتج تسأل؟",
+    fSend:"إرسال الاستفسار", fNote:"نموذج تجريبي — هذه الاستمارة لا تُرسل إلى أي جهة بعد.",
+    fOk:"شكراً لك — تم تسجيل استفسارك.",
+    fErr:"يرجى إدخال الاسم ورقم الهاتف.",
+
+    ftExplore:"تصفّح", ftBranches:"الفروع", ftContact:"تواصل",
+    ftAllBranches:"كل الفروع السبعة",
+    ftAbout:"الموزّع المعتمد لأجهزة ديكاكيلا للمطبخ والمنزل في ليبيا، بسبعة فروع من طرابلس إلى درنة.",
+    ftCopyBrand:"ديكاكيلا ليبيا", ftCopy:"© ٢٠٢٦. جميع الحقوق محفوظة.",
+    ftDisclaimer:"موزّع معتمد. تفاصيل المنتجات في هذه الصفحة مبدئية."
+  }
+};
+
+/* ==========================================================================
+   LANGUAGE SWITCHER — flips dir, lang, type stack and every tagged string
+   ========================================================================== */
+const STORE_KEY = 'decakila-lang';
+const langButtons = document.querySelectorAll('.lang__btn');
+
+function applyLanguage(lang){
+  const dict = T[lang] || T.en;
+  const root = document.documentElement;
+
+  root.setAttribute('lang', lang);
+  root.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+  // Text nodes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = dict[el.dataset.i18n];
+    if (v !== undefined) el.textContent = v;
+  });
+
+  // Placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const v = dict[el.dataset.i18nPh];
+    if (v !== undefined) el.setAttribute('placeholder', v);
+  });
+
+  // Document metadata
+  document.title = lang === 'ar'
+    ? 'ديكاكيلا ليبيا — حياة أسهل وأكثر متعة'
+    : 'Decakila Libya — Making Fun Life Easier';
+
+  // Switcher state
+  langButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+
+  try { localStorage.setItem(STORE_KEY, lang); } catch(e){ /* private mode */ }
+}
+
+langButtons.forEach(btn => {
+  btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+});
+
+// Restore the visitor's choice, else fall back to the browser language
+let initial = 'en';
+try { initial = localStorage.getItem(STORE_KEY) || ((navigator.language||'').startsWith('ar') ? 'ar' : 'en'); } catch(e){}
+applyLanguage(initial);
+
+/* ==========================================================================
+   HEADER: scroll state + mobile menu
+   ========================================================================== */
+const header = document.getElementById('header');
+const burger = document.getElementById('burger');
+const nav    = document.getElementById('nav');
+
+const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 12);
+window.addEventListener('scroll', onScroll, { passive:true });
+onScroll();
+
+burger.addEventListener('click', () => {
+  const open = burger.getAttribute('aria-expanded') === 'true';
+  burger.setAttribute('aria-expanded', String(!open));
+  nav.classList.toggle('is-open', !open);
+});
+
+nav.addEventListener('click', e => {
+  if (e.target.closest('a')) {
+    nav.classList.remove('is-open');
+    burger.setAttribute('aria-expanded','false');
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+    nav.classList.remove('is-open');
+    burger.setAttribute('aria-expanded','false');
+    burger.focus();
+  }
+});
+
+/* ==========================================================================
+   ACTIVE NAV LINK — reflects the section in view
+   ========================================================================== */
+const navLinks = [...nav.querySelectorAll('a')];
+const sections = navLinks
+  .map(a => document.querySelector(a.getAttribute('href')))
+  .filter(Boolean);
+
+if ('IntersectionObserver' in window && sections.length){
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + entry.target.id));
+    });
+  }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+  sections.forEach(s => spy.observe(s));
+}
+
+/* ==========================================================================
+   SCROLL REVEAL — skipped entirely when reduced motion is requested
+   ========================================================================== */
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const revealEls = document.querySelectorAll('.reveal');
+
+if (reduced || !('IntersectionObserver' in window)){
+  revealEls.forEach(el => el.classList.add('is-in'));
+} else {
+  document.documentElement.classList.add('has-js');   // only now is it safe to hide
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting){
+        entry.target.classList.add('is-in');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: .12, rootMargin: '0px 0px -8% 0px' });
+  revealEls.forEach(el => io.observe(el));
+}
+
+/* ==========================================================================
+   PRODUCT FILTER (dummy data — swap for a real query later)
+   ========================================================================== */
+const chips = document.querySelectorAll('.chip');
+const cards = document.querySelectorAll('#productGrid .card');
+
+chips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    chips.forEach(c => { c.classList.remove('is-active'); c.setAttribute('aria-selected','false'); });
+    chip.classList.add('is-active');
+    chip.setAttribute('aria-selected','true');
+
+    const filter = chip.dataset.filter;
+    cards.forEach(card => {
+      const show = filter === 'all' || card.dataset.cat === filter;
+      card.style.display = show ? '' : 'none';
+    });
+  });
+});
+
+/* ==========================================================================
+   HERO VIDEO — fades in only once a real source actually plays.
+   Until you add a <source>, the branded gradient stands in on its own.
+   ========================================================================== */
+const heroVideo = document.getElementById('hero-video');
+if (heroVideo){
+  heroVideo.addEventListener('playing', () => heroVideo.classList.add('is-ready'), { once:true });
+  heroVideo.addEventListener('error',   () => heroVideo.classList.remove('is-ready'));
+  if (reduced) heroVideo.pause();
+}
+
+/* ==========================================================================
+   DEMO FORM — validates in the browser, submits nowhere
+   ========================================================================== */
+const toast = document.getElementById('toast');
+const toastText = document.getElementById('toastText');
+let toastTimer;
+
+function showToast(msg){
+  toastText.textContent = msg;
+  toast.classList.add('is-on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('is-on'), 3600);
+}
+
+document.getElementById('contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const lang = document.documentElement.getAttribute('lang');
+  const dict = T[lang] || T.en;
+  const name  = document.getElementById('f-name');
+  const phone = document.getElementById('f-phone');
+
+  if (!name.value.trim() || !phone.value.trim()){
+    showToast(dict.fErr);
+    (!name.value.trim() ? name : phone).focus();
+    return;
+  }
+  showToast(dict.fOk);
+  e.target.reset();
+});
+</script>
+</body>
+</html>
