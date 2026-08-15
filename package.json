@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Decakila Libya — single-file bilingual product site",
+  "description": "Decakila Libya \u2014 single-file bilingual product site",
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "package": "node build.mjs && node tools/package-zip.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
