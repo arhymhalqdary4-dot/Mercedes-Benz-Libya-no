@@ -305,26 +305,30 @@ html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78r
 .burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
 
 /* ==========================================================================
-   8. HERO — scroll-bound video scrubbing
-   Structure: a tall .hero-track provides the scroll distance; .hero is
-   sticky inside it, so it stays pinned to the viewport while the page
-   scrolls past. Scroll progress through the track drives video.currentTime.
+   8. HERO — split layout with scroll-bound video scrubbing
+   --------------------------------------------------------------------------
+   .hero-track supplies the scroll distance; .hero is sticky inside it, so
+   BOTH columns stay pinned together while scroll progress drives
+   video.currentTime. The copy sits on its own solid panel rather than over
+   the footage, so nothing competes with the product and the text needs no
+   shadow, scrim or overlay to be readable.
    --hero-scroll is the ONLY knob for how long the scrub lasts.
    ========================================================================== */
 :root{
   --hero-scroll: 400vh;             /* 100vh pinned + 300vh of scrubbing */
-  /* Carries all hero-copy contrast now that nothing tints the footage. */
-  --hero-shadow:
-    0 0 3px rgba(0,0,0,.62),
-    0 1px 3px rgba(0,0,0,.66),
-    0 2px 10px rgba(0,0,0,.45),
-    0 6px 28px rgba(0,0,0,.32);
+  --hero-panel:  var(--brand-red);  /* the text column's solid ground */
+  --hero-seam:   clamp(30px, 4.4vw, 78px);   /* width of the S-curve seam */
 }
 
 .hero-track{
   position:relative;
   height:var(--hero-scroll);
-  background:var(--brand-red-deep);   /* covers any sub-pixel gap while pinned */
+  /* Mirrors the split above it, so a sub-pixel gap at the pinned edge shows
+     the right colour under each column rather than red under the footage. */
+  background:linear-gradient(to right, var(--hero-panel) 0 50%, var(--grey-100) 50% 100%);
+}
+html[dir="rtl"] .hero-track{
+  background:linear-gradient(to left, var(--hero-panel) 0 50%, var(--grey-100) 50% 100%);
 }
 /* If the video can't load, the track collapses so there is no dead scroll. */
 .hero-track.is-static{ height:auto; }
@@ -332,72 +336,87 @@ html[lang="ar"] .logo-tag{ letter-spacing:0; text-transform:none; font-size:.78r
 .hero{
   position:sticky; top:0;
   height:100vh;
-  height:100svh;                      /* stable on mobile as the URL bar moves */
-  display:flex; align-items:center;
-  background:linear-gradient(135deg, var(--brand-red-deep) 0%, var(--brand-red) 55%, #F5333F 100%);
+  height:100svh;                    /* stable on mobile as the URL bar moves */
+  display:grid;
+  grid-template-columns:1fr 1fr;    /* dir flips these automatically */
   overflow:hidden;
   isolation:isolate;
 }
-.hero-track.is-static .hero{ position:relative; height:auto; min-height:min(92vh,820px); }
+.hero-track.is-static .hero{ position:relative; height:auto; min-height:min(88vh,780px); }
 
-/* Ambient fallback — carries the hero on its own until the video decodes */
-.hero__ambient{
-  position:absolute; inset:0; z-index:0; opacity:.5;
-  background:
-    radial-gradient(60% 60% at 78% 18%, rgba(255,255,255,.30) 0%, transparent 60%),
-    radial-gradient(45% 45% at 12% 82%, rgba(0,0,0,.35) 0%, transparent 65%);
+/* ---- Text column ------------------------------------------------------- */
+.hero__panel{
+  position:relative; z-index:2;
+  background:var(--hero-panel);
+  color:#fff;
+  display:flex; align-items:center;
+  /* Extra room on the seam side so the copy never runs under the curve. */
+  padding-block: calc(var(--header-h) + clamp(20px,3vw,44px)) clamp(28px,4vw,56px);
+  padding-inline: clamp(24px,5vw,80px) calc(var(--hero-seam) + clamp(20px,2.5vw,44px));
 }
+.hero__inner{ width:100%; max-width:600px; margin-inline-start:auto; }
+/* On a wide screen the copy hugs the seam rather than drifting to the edge. */
+@media (min-width:1500px){ .hero__inner{ margin-inline-end:clamp(0px,4vw,80px); } }
 
-/* Pinned to the back of the hero, filling it at any aspect ratio. */
-.hero__video{
+/* The logo's S-curve, standing up as the seam between panel and footage.
+   It is a child of the panel and pushed just past its inline-end edge. */
+.hero__seam{
+  position:absolute; inset-block:0;
+  inset-inline-end:calc(-1 * var(--hero-seam) + 1px);
+  width:var(--hero-seam); height:100%;
+  color:var(--hero-panel);
+  pointer-events:none; line-height:0;
+}
+.hero__seam svg{ width:100%; height:100%; display:block; }
+html[dir="rtl"] .hero__seam svg{ transform:scaleX(-1); }
+
+/* ---- Video column ------------------------------------------------------ */
+.hero__media{
+  position:relative; z-index:1;
+  background:var(--grey-100);       /* neutral ground, never bare white */
+  overflow:hidden;
+}
+/* Ambient wash — carries the column on its own until the video decodes */
+.hero__ambient{
   position:absolute; inset:0; z-index:0;
+  background:
+    radial-gradient(70% 70% at 50% 35%, var(--white) 0%, var(--grey-100) 55%, var(--grey-200) 100%);
+}
+.hero__video{
+  position:absolute; inset:0; z-index:1;
   width:100%; height:100%;
   object-fit:cover;
   object-position:center;
-  opacity:0;                          /* JS fades it in once a frame exists */
+  opacity:0;                        /* JS fades it in once a frame exists */
   transition:opacity 700ms var(--ease);
-  pointer-events:none;                /* scroll passes straight through */
+  pointer-events:none;              /* scroll passes straight through */
   will-change:opacity;
 }
-/* Full opacity and no overlay above it — the render shows in its own colours. */
+/* Full opacity, nothing layered over it — the render keeps its own colours. */
 .hero__video.is-ready{ opacity:1; }
 
 /* The video is a product render, not a mirror image — it must NOT flip in RTL
-   the way the swoosh does. Stated explicitly so nothing inherits a flip. */
+   the way the seam curve does. Stated explicitly so nothing inherits a flip. */
 html[dir="rtl"] .hero__video{ transform:none; }
 
-/* Scrub progress — a thin brand-red rule that fills as the video advances */
+/* Scrub progress — sits under the footage it describes, not under the copy */
 .hero__progress{
   position:absolute; inset-block-end:0; inset-inline-start:0; z-index:4;
   height:3px; width:100%; transform-origin:left;
-  background:var(--brand-red);        /* red reads against the white swoosh */
+  background:var(--brand-red);
   transform:scaleX(var(--scrub, 0));
   opacity:0; transition:opacity var(--t) var(--ease);
 }
 html[dir="rtl"] .hero__progress{ transform-origin:right; }
-.hero-track.is-scrubbing .hero__progress{ opacity:.85; }
+.hero-track.is-scrubbing .hero__progress{ opacity:.9; }
 .hero-track.is-static .hero__progress{ display:none; }
 
-/* Header is fixed and translucent, so the pinned video runs behind it; the
-   copy is padded clear of it instead of the section being pushed down. */
-.hero .container{
-  position:relative; z-index:3;
-  padding-block: calc(var(--header-h) + clamp(24px,5vw,48px)) clamp(70px,9vw,96px);
-}
-.hero__inner{ max-width:830px; color:#fff; }
-
-/* With no scrim over the footage, every piece of hero copy carries its own
-   contrast. The shadow is layered rather than single: a tight dark edge for
-   legibility against detail, a wider soft halo to lift the text off bright
-   frames. It reads as a subtle depth cue, not an outline. */
-.hero__eyebrow, .hero__slogan, .hero__text,
-.hero__inner .stat__num, .hero__inner .stat__label{ text-shadow:var(--hero-shadow); }
-
+/* ---- Copy -------------------------------------------------------------- */
 .hero__eyebrow{
   display:inline-flex; align-items:center; gap:10px;
-  padding:8px 18px 8px 10px; margin-bottom:24px;
-  background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.35);
-  border-radius:var(--r-pill); backdrop-filter:blur(8px);
+  padding:8px 18px 8px 10px; margin-bottom:22px;
+  background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.4);
+  border-radius:var(--r-pill);
   font-size:.82rem; font-weight:600; letter-spacing:.02em;
 }
 html[dir="rtl"] .hero__eyebrow{ padding:8px 10px 8px 18px; }
@@ -406,37 +425,38 @@ html[dir="rtl"] .hero__eyebrow{ padding:8px 10px 8px 18px; }
   box-shadow:0 0 0 4px rgba(255,255,255,.22);
 }
 .hero__title{
-  font-size:clamp(2.3rem, 6.4vw, 4.1rem); font-weight:800; color:#fff;
-  text-shadow:
-    0 0 4px rgba(0,0,0,.62),
-    0 2px 4px rgba(0,0,0,.66),
-    0 4px 16px rgba(0,0,0,.45),
-    0 8px 40px rgba(0,0,0,.32);
+  /* Sized to fit "Appliances that make" on one line inside half a screen —
+     larger and the line orphans its last word. */
+  font-size:clamp(1.9rem, 2.9vw, 2.9rem); font-weight:800; color:#fff;
+  text-wrap:balance;
 }
 .hero__title span{ display:block; }
 .hero__slogan{
-  margin-top:20px;
-  font-size:clamp(1rem, 2.2vw, 1.3rem); font-weight:700;
+  margin-top:18px;
+  font-size:clamp(.95rem, 1.2vw, 1.15rem); font-weight:700;
   letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.95);
 }
-html[lang="ar"] .hero__slogan{ letter-spacing:0; text-transform:none; font-size:clamp(1.15rem,2.6vw,1.5rem); }
+html[lang="ar"] .hero__slogan{ letter-spacing:0; text-transform:none; font-size:clamp(1.1rem,1.5vw,1.35rem); }
 .hero__slogan::after{
   content:""; display:block; width:64px; height:3px; border-radius:2px;
-  background:#fff; margin-top:16px; opacity:.85;
+  background:#fff; margin-top:14px; opacity:.85;
 }
 .hero__text{
-  margin-top:22px; max-width:56ch;
-  font-size:clamp(1rem,1.7vw,1.13rem); color:rgba(255,255,255,.92);
+  margin-top:20px; max-width:46ch;
+  font-size:clamp(.97rem,1.05vw,1.08rem); color:rgba(255,255,255,.93);
 }
-.hero__cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; }
+.hero__cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
 
+/* Four stats in one row inside half a screen: a grid, not a wrapping flex,
+   so the columns stay aligned instead of reflowing into ragged groups. */
 .hero__stats{
-  display:flex; flex-wrap:wrap; gap:clamp(20px,5vw,56px);
-  margin-top:clamp(40px,6vw,60px);
-  padding-top:28px; border-top:1px solid rgba(255,255,255,.4);
+  display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:clamp(12px,1.6vw,24px);
+  margin-top:clamp(28px,3.4vw,44px);
+  padding-top:22px; border-top:1px solid rgba(255,255,255,.4);
 }
-.stat__num{ font-size:clamp(1.7rem,3.4vw,2.3rem); font-weight:800; color:#fff; line-height:1; }
-.stat__label{ margin-top:8px; font-size:.85rem; color:rgba(255,255,255,.82); font-weight:500; }
+.stat__num{ font-size:clamp(1.4rem,2vw,2rem); font-weight:800; color:#fff; line-height:1; }
+.stat__label{ margin-top:6px; font-size:.78rem; line-height:1.4; color:rgba(255,255,255,.85); font-weight:500; }
 
 /* ==========================================================================
    9. TRUST STRIP
@@ -774,17 +794,45 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
   .nav a{ padding:14px 12px; font-size:1.02rem; min-height:48px; display:flex; align-items:center; }
   .nav a::after{ display:none; }
   .logo-tag{ display:none; }
+
+  /* --- Hero stacks: footage on top, copy beneath ---------------------- */
+  /* Stacked, the panel is what reaches the bottom edge, so the track is solid. */
+  .hero-track, html[dir="rtl"] .hero-track{ background:var(--hero-panel); }
+  .hero{ grid-template-columns:1fr; grid-template-rows:38svh 1fr; }
+  .hero__media{ order:-1; }
+  /* Video is on top now, so the fixed header floats over it and the copy
+     no longer needs to be padded clear of the header. */
+  .hero__panel{
+    padding-block: clamp(30px,6vw,44px) clamp(24px,5vw,36px);
+    padding-inline: clamp(22px,6vw,40px);
+  }
+  .hero__inner{ max-width:none; margin-inline:0; }
+  /* The seam turns from a vertical edge into a horizontal one. */
+  .hero__seam{ display:none; }
+  .hero__panel::before{
+    content:""; position:absolute; inset-inline:-2%; top:-26px; height:52px;
+    background:var(--hero-panel); border-radius:52% 52% 0 0 / 100% 100% 0 0;
+  }
+  .hero__stats{ grid-template-columns:repeat(4,minmax(0,1fr)); margin-top:22px; padding-top:18px; }
 }
 @media (max-width: 620px){
   :root{ --header-h:70px; }
-  .hero{ min-height:auto; }
-  .hero__cta .btn{ width:100%; }
-  .hero__stats{ gap:24px 32px; }
+  .hero{ grid-template-rows:34svh 1fr; }
+  .hero__title{ font-size:clamp(1.75rem,7.4vw,2.3rem); }
+  /* The supporting paragraph is the one piece that will not fit a phone
+     alongside the headline, slogan, buttons and stats. It stays on tablets. */
+  .hero__text{ display:none; }
+  .hero__cta{ margin-top:22px; }
+  .hero__cta .btn{ flex:1 1 auto; min-height:46px; padding-inline:18px; }
+  /* Four stat columns get too narrow to read on a phone — two rows of two. */
+  .hero__stats{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
   .footer__grid{ grid-template-columns:1fr 1fr; }
   .products__head{ flex-direction:column; align-items:flex-start; }
   .toast{ inset-inline:16px; }
 }
 @media (max-width: 420px){
+  .hero{ grid-template-rows:30svh 1fr; }
+  .hero__eyebrow{ margin-bottom:16px; font-size:.76rem; }
   .footer__grid{ grid-template-columns:1fr; }
   .product-grid{ grid-template-columns:1fr; }
 }
@@ -840,21 +888,20 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
 
 <main id="main">
 
-<!-- ======================= HERO =======================
-     .hero-track supplies the scroll distance (--hero-scroll); .hero is
-     sticky inside it and stays pinned while the blender render scrubs.
-     ==================================================================== -->
+<!-- ======================= HERO — SPLIT LAYOUT =======================
+     .hero-track supplies the scroll distance (--hero-scroll); .hero is a
+     two-column grid, sticky inside the track, so BOTH columns stay pinned
+     together while the blender render scrubs frame-by-frame.
+
+     Column order is DOM order (copy, then video) and the grid follows the
+     document direction, so LTR puts copy left / video right and RTL flips
+     both automatically — no direction-specific rules needed.
+     ================================================================= -->
 <div class="hero-track" id="heroTrack">
 <section class="hero" id="home">
-  <div class="hero__ambient"></div>
 
-  <!-- Scrubbed by scroll position — deliberately no autoplay and no loop. -->
-  <video class="hero__video" id="blenderVideo"
-         src="hero.mp4"
-         muted preload="auto" playsinline
-         disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
-
-  <div class="container">
+  <!-- ---- Text column: solid brand panel, nothing behind the words ---- -->
+  <div class="hero__panel">
     <div class="hero__inner">
       <span class="hero__eyebrow"><span class="dot"></span><span data-i18n="heroBadge">Authorized Distributor in Libya</span></span>
 
@@ -885,17 +932,29 @@ html[lang="ar"] .footer h4{ letter-spacing:0; text-transform:none; font-size:.95
         <div class="stat"><div class="stat__num">100%</div><div class="stat__label" data-i18n="statGenuine">Genuine spare parts</div></div>
       </div>
     </div>
+
+    <!-- BRAND SWOOSH — the logo's S-curve, standing up as the column seam -->
+    <div class="hero__seam" aria-hidden="true">
+      <svg viewBox="0 0 100 1000" preserveAspectRatio="none">
+        <path d="M0,0 L44,0 C82,170 18,360 52,540 C76,672 44,846 30,1000 L0,1000 Z" fill="currentColor"/>
+      </svg>
+    </div>
   </div>
 
-  <!-- BRAND SWOOSH — the logo's S-curve as a section divider -->
-  <div class="swoosh swoosh--bottom" aria-hidden="true">
-    <svg viewBox="0 0 1440 110" preserveAspectRatio="none">
-      <path d="M0,110 L1440,110 L1440,24 C1180,102 1010,6 660,62 C430,99 190,104 0,58 Z" fill="#FFFFFF"/>
-    </svg>
+  <!-- ---- Video column: the render, and nothing else ------------------ -->
+  <div class="hero__media">
+    <div class="hero__ambient"></div>
+
+    <!-- Scrubbed by scroll position — deliberately no autoplay and no loop. -->
+    <video class="hero__video" id="blenderVideo"
+           src="hero.mp4"
+           muted preload="auto" playsinline
+           disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
+
+    <!-- Scrub progress, under the footage it describes -->
+    <div class="hero__progress" aria-hidden="true"></div>
   </div>
 
-  <!-- Scrub progress -->
-  <div class="hero__progress" aria-hidden="true"></div>
 </section>
 </div><!-- /.hero-track -->
 

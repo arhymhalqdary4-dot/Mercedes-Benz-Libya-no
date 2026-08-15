@@ -72,19 +72,51 @@ treatments, which are latin-only conventions.
 6. **Contact form.** Validates in the browser and shows a toast; it does not
    submit anywhere.
 
-## Scroll-bound video scrubbing
+## The hero: split layout + scroll-bound scrubbing
 
-The hero binds `hero.mp4`'s `currentTime` to scroll position, so the blender
-render advances frame-by-frame as you scroll down and reverses as you scroll up.
+The hero is a two-column split — copy on a solid brand panel, footage in its own
+column — and the whole thing is pinned while `hero.mp4`'s `currentTime` is bound
+to scroll position, so the render advances frame-by-frame as you scroll down and
+reverses as you scroll up.
 
 ### Structure
 
 ```
-.hero-track      height: var(--hero-scroll)   ← supplies the scroll distance
-  └ .hero       position: sticky; top: 0     ← stays pinned while the page moves
-      ├ .hero__video    pinned behind, object-fit: cover, full opacity
-      └ .container      the copy, z-index 3
+.hero-track          height: var(--hero-scroll)  ← supplies the scroll distance
+  └ .hero            position: sticky; top: 0    ← BOTH columns pin together
+        display: grid; grid-template-columns: 1fr 1fr
+      ├ .hero__panel   the copy, on solid --hero-panel
+      │   └ .hero__seam  the logo's S-curve, stood up as the column seam
+      └ .hero__media   the video column, and nothing else
+          ├ .hero__video   object-fit: cover, full opacity
+          └ .hero__progress
 ```
+
+Both columns are pinned together rather than one scrolling past the other. With
+the copy on its own ground there is nothing for it to scroll against, and a
+column sliding beside a pinned one reads as two competing motions — the video
+already supplies all the movement the section needs.
+
+### Direction
+
+Column order is DOM order (copy, then video) and a CSS grid lays its columns out
+along the document direction. So LTR puts copy left / video right, RTL puts copy
+right / video left, with no direction-specific rules at all. The seam curve
+mirrors; the video deliberately does not, since it is a product render rather
+than an ornament.
+
+### The text panel
+
+`--hero-panel` is the copy column's background — brand red by default. Set it to
+`var(--white)` for the cooler, lighter treatment, in which case also flip
+`.hero__panel { color }` and swap the two hero buttons for their dark-on-light
+variants.
+
+Because the copy now sits on solid colour rather than over footage, it needs no
+scrim, no overlay and no text-shadow — white on `#E30613` is a flat 4.92:1 at
+every scroll position, independent of what the video is doing. That is the real
+gain of the split over a full-bleed background: contrast stops being a function
+of the frame on screen.
 
 `--hero-scroll` (default `400vh`) is the only knob for how long the scrub lasts:
 one viewport of pinning plus three of scrubbing. Raise it for a slower, more
@@ -150,31 +182,29 @@ dead scroll.
 | `prefers-reduced-motion` | No scrubbing; one representative frame, shown statically |
 | Hero scrolled past quickly | Snaps to the boundary frame instead of freezing mid-ease |
 
-### Readability without an overlay
+In every fallback the split layout itself survives — only the pinning and the
+scrubbing stop. The track collapses to a single screen and the two columns sit
+side by side as a static hero.
 
-Nothing is layered over the footage — the render plays at full opacity in its
-own colours. All hero-copy contrast therefore comes from `--hero-shadow`, a
-layered `text-shadow`: a tight halo hugging the glyph edges, a short offset
-shadow, and a wide soft one. The tight halo does most of the work, because
-contrast is judged against the pixels immediately around a letterform rather
-than the average of the whole block.
+### Responsive
 
-Measured on composited pixels in the shadowed reading zone, across four scrub
-positions, against a fully saturated frame: **5.64:1 worst case in English,
-4.64:1 in Arabic** (4.5:1 required). Arabic runs lower because Cairo's strokes
-are lighter than Poppins', leaving more backdrop inside the reading zone.
+Below 860px the two columns stack: footage on top (about a third of the
+viewport), copy beneath. Video-on-top is deliberate — the fixed header then
+floats over the footage instead of the copy, so the panel needs no header
+clearance and gains that space back for text. The vertical seam becomes a
+horizontal swoosh curving up out of the copy panel.
 
-Those margins are thin, and they were measured against a stand-in clip. If the
-real `hero.mp4` is bright or busy where the copy sits, check it and either
-deepen `--hero-shadow` or darken that region of the footage in the edit — that
-keeps the video's own colours intact, which a CSS overlay would not.
+Two things shrink to fit a phone: the four stats go to a 2×2 grid below 620px,
+and the supporting paragraph is hidden below 620px — it is the one block that
+will not fit alongside the headline, slogan, buttons and stats. It stays on
+tablets. Verified with copy-fits-panel measurements at 390×844, 360×740 and
+768×1024 in both languages.
 
 ### Bilingual
 
 Scrubbing is driven by vertical scroll, so it is direction-agnostic and works
-identically in both languages. One detail is handled explicitly: the video does
-**not** mirror in RTL (it is a product render, not an ornament, unlike the
-swoosh). Switching language mid-scrub keeps the current position.
+identically in both languages. Switching language mid-scrub keeps the current
+position.
 
 ## Accessibility and responsive notes
 
