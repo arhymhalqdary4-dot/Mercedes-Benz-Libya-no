@@ -1,0 +1,1102 @@
+/* ==========================================================================
+   DECAKILA LIBYA — shared stylesheet
+   Loaded by index.html, products.html, services.html, about.html.
+
+   Contents
+   01. Design tokens
+   02. Reset & base
+   03. Layout helpers
+   04. Buttons & icons
+   05. Header + mobile navigation
+   06. Hero
+   07. Trust badges band
+   08. Featured products (white section)
+   09. Promo banner
+   10. Inner-page placeholder container
+   11. Footer
+   12. Responsive — tablet (<= 1024px)
+   13. Responsive — mobile (<= 640px)
+   14. Motion preferences
+
+   Direction note
+   The document is `dir="rtl"` so Arabic copy shapes, wraps and punctuates
+   correctly. The approved mockup, however, keeps a few structural rows in
+   visual left-to-right order (logo at the far left, footer columns starting
+   at the left, product cards reading blender -> vacuum). Those rows — and
+   only those rows — carry `.flow-ltr`, which flips the *box order* back to
+   LTR while every text node inside keeps its own language direction.
+   ========================================================================== */
+
+/* 01. Design tokens ======================================================= */
+
+:root {
+  /* Brand — sampled from the logo artwork */
+  --brand-red: #e30613;
+  --brand-red-dark: #b4040f;
+  --brand-red-deep: #8c030b;
+  --brand-red-soft: rgba(227, 6, 19, 0.55);
+  --brand-red-faint: rgba(227, 6, 19, 0.14);
+
+  /* Premium dark theme */
+  --black: #050505;
+  --charcoal: #0b0b0c;
+  --charcoal-2: #111113;
+  --charcoal-3: #17171a;
+  --charcoal-4: #202024;
+
+  /* Light surfaces (product grid) */
+  --white: #ffffff;
+  --off-white: #f4f4f5;
+  --line-light: #e6e6e8;
+
+  /* Text */
+  --text-on-dark: #ffffff;
+  --text-muted: #b6b6bb;
+  --text-dim: #85858c;
+  --text-on-light: #16161a;
+  --text-on-light-soft: #55555d;
+
+  --border-dark: rgba(255, 255, 255, 0.08);
+
+  /* Type */
+  --font-ar: "Cairo", "Tajawal", "Segoe UI", system-ui, sans-serif;
+  --font-en: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* Metrics */
+  --wrap: 1240px;
+  --gutter: 32px;
+  --header-h: 78px;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --pill: 999px;
+
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.07);
+  --shadow-red: 0 10px 30px rgba(227, 6, 19, 0.35);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 02. Reset & base ======================================================== */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--text-on-dark);
+  font-family: var(--font-ar);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, p, figure, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+
+img,
+svg { display: block; max-width: 100%; }
+
+img { height: auto; }
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-red);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Latin strings inside the RTL document */
+.en {
+  font-family: var(--font-en);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 03. Layout helpers ====================================================== */
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Keeps the box order left-to-right — see the direction note at the top. */
+.flow-ltr { direction: ltr; }
+
+.section-head {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.section-head h2 {
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-on-light);
+}
+
+/* The red rule under the second word of the heading */
+.section-head .mark {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 10px;
+}
+
+.section-head .mark::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--pill);
+  background: var(--brand-red);
+}
+
+.section-head .sub {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-on-light-soft);
+}
+
+/* 04. Buttons & icons ===================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 26px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease),
+              background-color 0.2s var(--ease);
+}
+
+.btn--primary {
+  background: var(--brand-red);
+  color: #fff;
+  box-shadow: var(--shadow-red);
+}
+
+.btn--primary:hover {
+  background: var(--brand-red-dark);
+  transform: translateY(-2px);
+}
+
+.btn--lg {
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+.btn__label-en {
+  font-family: var(--font-en);
+  direction: ltr;
+}
+
+.btn .arrow {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--pill);
+  color: #fff;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.icon-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.icon-btn svg { width: 21px; height: 21px; }
+
+.cart-btn { position: relative; }
+
+.cart-btn .badge {
+  position: absolute;
+  top: 2px;
+  inset-inline-end: 2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--pill);
+  background: var(--brand-red);
+  color: #fff;
+  font-family: var(--font-en);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
+/* 05. Header ============================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: rgba(11, 11, 12, 0.94);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-dark);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  height: var(--header-h);
+}
+
+.brand {
+  flex: none;
+  display: block;
+}
+
+.brand img {
+  width: 132px;
+  height: 46px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.main-nav { flex: 1; }
+
+.main-nav ul {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.main-nav a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.main-nav a .en { font-size: 13.5px; }
+
+.main-nav a .slash {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.main-nav a:hover { color: #fff; }
+
+.main-nav a.is-active { color: #fff; }
+
+.main-nav a.is-active .slash { color: var(--brand-red); }
+
+.header-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-actions .btn { padding: 11px 20px; font-size: 14px; }
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.lang-switch:hover { color: #fff; border-color: rgba(255, 255, 255, 0.24); }
+.lang-switch .on { color: #fff; }
+.lang-switch .sep { color: var(--text-dim); }
+
+/* Hamburger — mobile only */
+.nav-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-toggle span {
+  display: block;
+  position: relative;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  transition: transform 0.25s var(--ease), background-color 0.15s var(--ease);
+}
+
+.nav-toggle span::before,
+.nav-toggle span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  transition: transform 0.25s var(--ease), top 0.25s var(--ease);
+}
+
+.nav-toggle span::before { top: -6px; }
+.nav-toggle span::after { top: 6px; }
+
+.nav-toggle[aria-expanded="true"] span { background: transparent; }
+
+.nav-toggle[aria-expanded="true"] span::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] span::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+/* 06. Hero ================================================================ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 78% 45%, rgba(227, 6, 19, 0.20) 0%, rgba(227, 6, 19, 0) 58%),
+    linear-gradient(180deg, #0b0b0c 0%, #070708 60%, #050505 100%);
+}
+
+/* Faint circuit-grid texture behind the product */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 74px 74px;
+  mask-image: radial-gradient(60% 70% at 75% 50%, #000 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(60% 70% at 75% 50%, #000 0%, transparent 72%);
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 40px;
+  min-height: 560px;
+  padding-block: 60px;
+}
+
+.hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 500px;
+}
+
+.hero__title {
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-align: right;
+  width: 100%;
+}
+
+.hero__title-full { display: block; }
+.hero__title-mobile { display: none; }
+
+.hero__lede {
+  margin-top: 18px;
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 400;
+  line-height: 1.55;
+  color: #e9e9ec;
+  text-align: left;
+}
+
+.hero__tagline {
+  margin-top: 14px;
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--brand-red);
+  text-align: left;
+}
+
+.hero__cta { margin-top: 30px; }
+
+/* --- Product + glow ring ------------------------------------------------ */
+
+.hero__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 440px;
+}
+
+.hero__glow,
+.hero__glow::before,
+.hero__glow::after {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Main neon ring */
+.hero__glow {
+  width: min(460px, 84%);
+  aspect-ratio: 1 / 1;
+  border: 2px solid rgba(227, 6, 19, 0.85);
+  box-shadow:
+    0 0 40px 6px var(--brand-red-soft),
+    inset 0 0 70px 10px rgba(227, 6, 19, 0.22);
+  background: radial-gradient(circle, rgba(227, 6, 19, 0.20) 0%, rgba(227, 6, 19, 0) 68%);
+}
+
+/* Outer halo */
+.hero__glow::before {
+  content: "";
+  inset: -13%;
+  border: 1px solid rgba(227, 6, 19, 0.28);
+  box-shadow: 0 0 90px 20px rgba(227, 6, 19, 0.18);
+}
+
+/* Dashed technical ring */
+.hero__glow::after {
+  content: "";
+  inset: 7%;
+  border: 1px dashed rgba(227, 6, 19, 0.42);
+}
+
+.hero__product {
+  position: relative;
+  z-index: 1;
+  width: min(370px, 68%);
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  filter: drop-shadow(0 26px 40px rgba(0, 0, 0, 0.65));
+}
+
+/* 07. Trust badges band =================================================== */
+
+.trust {
+  background: var(--charcoal-2);
+  border-block: 1px solid var(--border-dark);
+}
+
+.trust__inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding-block: 26px;
+}
+
+.trust__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.trust__item svg {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  color: var(--brand-red);
+}
+
+.trust__item .label-en {
+  display: block;
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.trust__item .label-ar {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* 08. Featured products =================================================== */
+
+.products {
+  background: var(--white);
+  color: var(--text-on-light);
+  padding-block: 64px 72px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: var(--white);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+              border-color 0.25s var(--ease);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(227, 6, 19, 0.35);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+}
+
+.product-card__media {
+  position: relative;
+  height: 210px;
+  margin-bottom: 18px;
+  background: var(--white);
+}
+
+/* The shot is absolutely positioned and contained, so whatever aspect ratio
+   the real product photo has, it centres inside the box and never changes
+   the height of the card. */
+.product-card__media img {
+  position: absolute;
+  inset: 0;
+  width: 88%;
+  height: 100%;
+  margin: auto;
+  object-fit: contain;
+}
+
+.product-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-on-light);
+}
+
+/* margin-top:auto pins the price row to the card bottom, so cards with a
+   two-line title still line up across the row. */
+.product-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.product-card__price {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--brand-red);
+  white-space: nowrap;
+}
+
+.product-card__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-red);
+  color: #fff;
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.product-card__add:hover {
+  background: var(--brand-red-dark);
+  transform: translateY(-2px);
+}
+
+.product-card__add svg { width: 19px; height: 19px; }
+
+/* 09. Promo banner ======================================================== */
+
+.promo {
+  position: relative;
+  overflow: hidden;
+  background: var(--charcoal);
+  min-height: 380px;
+  display: grid;
+  align-items: center;
+}
+
+.promo__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+  opacity: 0.85;
+}
+
+.promo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #050505 12%, rgba(5, 5, 5, 0.78) 42%, rgba(5, 5, 5, 0.15) 78%);
+  pointer-events: none;
+}
+
+.promo__inner {
+  position: relative;
+  z-index: 1;
+  padding-block: 72px;
+}
+
+.promo__copy { max-width: 520px; }
+
+.promo__title {
+  font-size: clamp(24px, 2.9vw, 36px);
+  font-weight: 800;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.promo__lede {
+  margin-top: 16px;
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: 15px;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.promo__cta { margin-top: 26px; }
+
+/* 10. Inner-page placeholder container ==================================== */
+
+.page-head {
+  position: relative;
+  padding-block: 58px 34px;
+  background:
+    radial-gradient(90% 120% at 50% 0%, rgba(227, 6, 19, 0.16) 0%, rgba(227, 6, 19, 0) 62%),
+    var(--charcoal);
+  border-bottom: 1px solid var(--border-dark);
+  text-align: center;
+}
+
+.page-head h1 {
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 800;
+}
+
+.page-head .en {
+  display: block;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand-red);
+}
+
+.page-body {
+  background: var(--black);
+  padding-block: 64px 88px;
+  min-height: 46vh;
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  min-height: 340px;
+  padding: 56px 32px;
+  text-align: center;
+  background:
+    linear-gradient(180deg, var(--charcoal-2) 0%, var(--charcoal) 100%);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+}
+
+.placeholder__icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: var(--pill);
+  background: var(--brand-red-faint);
+  color: var(--brand-red);
+}
+
+.placeholder__icon svg { width: 28px; height: 28px; }
+
+.placeholder h2 {
+  font-size: clamp(20px, 2.2vw, 26px);
+  font-weight: 700;
+}
+
+.placeholder p {
+  max-width: 520px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.placeholder p.en { color: var(--text-dim); }
+
+/* 11. Footer ============================================================== */
+
+.site-footer {
+  background: var(--charcoal);
+  border-top: 1px solid var(--border-dark);
+  padding-top: 58px;
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  padding-bottom: 42px;
+}
+
+.footer-col h3 {
+  margin-bottom: 18px;
+  font-family: var(--font-en);
+  direction: ltr;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.footer-col li + li { margin-top: 11px; }
+
+.footer-col a,
+.footer-col .contact-line {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.footer-col a:hover { color: var(--brand-red); }
+
+.footer-col .en { font-size: 13.5px; }
+
+.footer-col .slash { color: var(--text-dim); }
+
+.footer-col svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--brand-red);
+}
+
+.footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 20px;
+  border-top: 1px solid var(--border-dark);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.footer-bar .en { font-family: var(--font-en); }
+
+/* 12. Responsive — tablet ================================================= */
+
+@media (max-width: 1024px) {
+  :root {
+    --gutter: 24px;
+    --header-h: 70px;
+  }
+
+  /* Nav collapses into the drawer; header keeps logo + utilities only */
+  .main-nav {
+    position: absolute;
+    top: var(--header-h);
+    inset-inline: 0;
+    flex: none;
+    background: var(--charcoal-2);
+    border-bottom: 1px solid var(--border-dark);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    transform: translateY(-12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s var(--ease), transform 0.22s var(--ease),
+                visibility 0.22s;
+  }
+
+  .main-nav.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .main-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px var(--gutter) 18px;
+  }
+
+  .main-nav li + li { border-top: 1px solid var(--border-dark); }
+
+  .main-nav a {
+    padding-block: 15px;
+    font-size: 15px;
+  }
+
+  .nav-toggle { display: inline-flex; }
+
+  .site-header__inner { gap: 12px; }
+
+  .brand img { width: 116px; height: 40px; }
+
+  .header-actions .btn { padding: 10px 16px; font-size: 13px; }
+
+  .hero__inner {
+    min-height: 0;
+    gap: 24px;
+    padding-block: 44px;
+  }
+
+  .hero__title { font-size: clamp(28px, 4.6vw, 40px); }
+  .hero__lede { font-size: 14px; }
+  .hero__tagline { font-size: 13px; }
+  .hero__cta .btn { padding: 12px 22px; font-size: 14px; }
+  .hero__visual { min-height: 330px; }
+  .hero__glow { width: min(330px, 88%); }
+  .hero__product { width: min(250px, 66%); }
+
+  .trust__inner {
+    gap: 14px;
+    padding-block: 20px;
+  }
+
+  .trust__item {
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
+  .trust__item svg { width: 28px; height: 28px; }
+  .trust__item .label-en { font-size: 13px; }
+  .trust__item .label-ar { font-size: 12.5px; }
+
+  .products { padding-block: 48px 54px; }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .product-card__media { height: 150px; }
+
+  .promo { min-height: 300px; }
+  .promo__inner { padding-block: 52px; }
+  .promo__title { font-size: clamp(21px, 3.4vw, 28px); }
+
+  .footer-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+/* 13. Responsive — mobile ================================================= */
+
+@media (max-width: 640px) {
+  :root {
+    --gutter: 18px;
+    --header-h: 64px;
+  }
+
+  .site-header__inner { gap: 6px; }
+
+  .brand { margin-inline-end: auto; }
+  .brand img { width: 104px; height: 36px; }
+
+  .icon-btn { width: 36px; height: 36px; }
+  .icon-btn svg { width: 19px; height: 19px; }
+
+  /* Minimalist mobile header: logo, search, cart, language, menu */
+  .header-actions .btn { display: none; }
+
+  .lang-switch { padding: 6px 9px; font-size: 12px; }
+
+  /* Minimalist mobile hero: title -> CTA -> product */
+  .hero__inner {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-block: 34px 44px;
+    text-align: center;
+  }
+
+  .hero__copy {
+    order: 1;
+    align-items: center;
+    max-width: none;
+  }
+
+  .hero__visual {
+    order: 2;
+    margin-top: 34px;
+    min-height: 300px;
+  }
+
+  .hero__title {
+    font-size: 27px;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .hero__title-full { display: none; }
+
+  .hero__title-mobile { display: block; }
+
+  .hero__title-mobile .en {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .hero__lede,
+  .hero__tagline { display: none; }
+
+  .hero__cta { margin-top: 20px; }
+
+  .hero__glow { width: min(300px, 86%); }
+  .hero__product { width: min(230px, 66%); }
+
+  .trust__inner {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-block: 22px;
+  }
+
+  .trust__item {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  .section-head { margin-bottom: 28px; }
+
+  .products { padding-block: 40px 46px; }
+
+  .product-grid { gap: 14px; }
+
+  .product-card { padding: 14px; }
+
+  .product-card__media { height: 128px; margin-bottom: 12px; }
+
+  .product-card__title { font-size: 14px; }
+
+  .product-card__price { font-size: 16px; }
+
+  .product-card__add { width: 34px; height: 32px; }
+
+  .promo { min-height: 0; }
+
+  .promo__inner { padding-block: 44px; }
+
+  .promo::after {
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.86) 30%, rgba(5, 5, 5, 0.62) 100%);
+  }
+
+  .promo__copy { max-width: none; }
+
+  .promo__title { font-size: 22px; }
+
+  .page-body { padding-block: 40px 56px; }
+
+  .placeholder {
+    min-height: 260px;
+    padding: 40px 20px;
+  }
+
+  .footer-cols {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding-bottom: 30px;
+  }
+
+  .footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    text-align: start;
+  }
+}
+
+/* 14. Motion preferences ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
