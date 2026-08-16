@@ -5,20 +5,25 @@ dependencies, no framework. Open `index.html` directly or serve the folder with
 any static host.
 
 ```
-index.html        Home — header, hero, trust badges, product grid, promo, footer
-products.html     المنتجات — header/footer + dark content placeholder
-services.html     الخدمات  — header/footer + dark content placeholder
-about.html        من نحن   — header/footer + dark content placeholder
-css/styles.css    the single shared stylesheet
-js/main.js        mobile hamburger toggle (the only script)
-images/           artwork slots — see images/README.md
-legacy/           an unrelated earlier build, kept out of the way
+index.html     Home — header, hero, trust badges, product grid, promo, footer
+products.html  المنتجات — header/footer + dark content placeholder
+services.html  الخدمات  — header/footer + dark content placeholder
+about.html     من نحن   — header/footer + dark content placeholder
+styles.css     the single shared stylesheet
+images/        artwork slots — see images/README.md
 ```
+
+The hamburger toggle is the only script and is inlined at the bottom of each
+page, so the four HTML files plus `styles.css` are the whole site.
+
+Two folders from earlier work also sit in the repository and are not part of
+the site: `legacy/` (an unrelated Mercedes-Benz page) and `decakila/` (the
+first single-file mockup). Delete both if you don't want them.
 
 ## Design system
 
 Every colour, font and metric is a CSS custom property at the top of
-`css/styles.css`, so the whole site retones from one block.
+`styles.css`, so the whole site retones from one block.
 
 | Token | Value | Role |
 | --- | --- | --- |
